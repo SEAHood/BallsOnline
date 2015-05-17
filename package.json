@@ -1,7 +1,7 @@
 {
-	"name": "multiplay",
+	"name": "BallsOnline",
 	"version": "0.0.1",
-	"description": "multiplayer with three.js",
+	"description": "The Massively Multiplayer Online Balls Game",
 	"dependencies": {
 		"express": "latest",
 		"socket.io": "latest"
