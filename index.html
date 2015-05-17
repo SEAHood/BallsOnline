@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Thang</title>
+		<style>
+			
+			html, body { padding:0; margin:0; overflow: hidden; }
+			canvas {  padding: 0; margin: 0; }
+		
+		
+			#stats { position: absolute; top:0; left: 0 }
+			#stats #fps { background: #000 !important }
+			#stats #fps #fpsText { color: #aaa !important }
+			
+			#title { color: #fff; position: absolute; width: 100%; text-align: right; padding-right: 10px; }
+			
+			#chat { 
+				position: fixed; 
+				bottom: 0; 
+				width: 50%; 
+				height: 20%; 
+			}
+			
+			form { width: 100%; position: absolute; bottom: 0; }
+			form input { width: 90%; }
+			form button { width: 9%; background: rgb(130, 224, 255); }
+			#messages { overflow: auto; height: 80%; list-style-type: none; margin: 0; padding: 0; }
+			#messages li { padding: 5px 10px; background: rgb(130, 224, 255);}
+			#messages li:nth-child(odd) { background: #eee; }
+		</style>
+	</head>
+	<body>
+		<div id="title">
+			Balls Online 2015<br/>
+			Now with 100% more chat!
+		</div>
+		<div id="chat">
+			<ul id="messages"></ul>
+			<form action="">
+			  <input id="m" autocomplete="off" /><button>Send</button>
+			</form>
+		</div>
+		<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+		<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+		<script src="three/three.min.js"></script>
+		<script src="three/three.orbitcontrols.js"></script>
+		<script src="three/stats.min.js"></script>
+		<script>
+			var socket = io();
+			
+			$(document).ready(function() {
+			});
+			
+			$('form').submit(function(){
+				if ($('#m').val() != "") {
+					socket.emit('chat message', $('#m').val(), guid.substring(0, 5));
+					$('#m').val('');
+				}
+				return false;
+			});
+			
+			socket.on('chat message', function(msg, user){
+				$('#messages').append($('<li>').text("<" + user + "> " + msg));
+				$('#messages').scrollTop($('#messages')[0].scrollHeight);
+			});
+			
+		</script>
+		<script src="game.js"></script>
+	</body>
+</html>

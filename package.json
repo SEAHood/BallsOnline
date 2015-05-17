@@ -1,0 +1,9 @@
+{
+	"name": "multiplay",
+	"version": "0.0.1",
+	"description": "multiplayer with three.js",
+	"dependencies": {
+		"express": "latest",
+		"socket.io": "latest"
+	}
+}
