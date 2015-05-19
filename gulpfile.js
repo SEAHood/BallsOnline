@@ -6,7 +6,7 @@ gulp.task('default', function() {
 });
 
 gulp.task('compile', function(){
-	gulp.src(['/src/*.ts'])
+	gulp.src(['src/*.ts'])
 		.pipe(typescript())
 		.pipe(gulp.dest('js/'))
 });
