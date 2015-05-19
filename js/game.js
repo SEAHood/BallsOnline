@@ -39,7 +39,7 @@ function init() {
 
 	
 	/////SKYBOX
-	var urlPrefix = "skybox/mercury_";
+	var urlPrefix = "skybox/stormydays_";
 	// var urls = [ urlPrefix + "left.jpg", urlPrefix + "right.jpg",
 		// urlPrefix + "top.jpg", urlPrefix + "lava.jpg",
 		// urlPrefix + "front.jpg", urlPrefix + "back.jpg" ];
@@ -75,7 +75,7 @@ function init() {
 	
 	
 	
-	var texture = THREE.ImageUtils.loadTexture( "metal.jpg" );
+	var texture = THREE.ImageUtils.loadTexture( "metal2.jpg" );
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
 	var terrainGeometry = new THREE.BoxGeometry(200, 10, 200);
