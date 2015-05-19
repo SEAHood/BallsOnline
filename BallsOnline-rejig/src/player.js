@@ -5,5 +5,4 @@ var Player = (function () {
     }
     return Player;
 })();
-
 var player1 = new Player('1234');
