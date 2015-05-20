@@ -1,10 +1,13 @@
 ///<reference path="../typings/requirejs/require.d.ts"/>
 
 requirejs.config({
-    baseUrl: '',
+    baseUrl: "src",
     paths: {
-        "three": "/three/three.min",
-        "jquery": "/jquery/jquery"
+		"game": "../game",
+		"scene": "../scene",
+		"player": "../player",
+        "three": "../three/three.min",
+		"sizzle": "/src/sizzle/dist/sizzle"
     }
 });
 
