@@ -1,6 +1,5 @@
 ///<reference path="../typings/threejs/three.d.ts"/>
 ///<reference path="../typings/jquery/jquery.d.ts"/>
-/// <amd-dependency path="three"/>
 import THREE = require("three");
 import jQuery = require("jquery");
 import Player = require("./player");
@@ -14,9 +13,13 @@ class Scene {
 	container: any;
 	user: any;
 	world: any;
+	
 	//controls: any;
 	
 	constructor() {
+		console.log("starting scene init");
+	
+		this.container = jQuery('#test');
 		// Create a scene, a camera, a light and a WebGL renderer with Three.JS
 		this.scene = new THREE.Scene();
 		
@@ -37,14 +40,14 @@ class Scene {
 		
 		//Setup renderer
 		this.renderer = new THREE.WebGLRenderer();
-		//this.renderer.setSize(window.innerWidth, window.innerHeight);
+		this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.renderer.shadowMapEnabled = true;
 		this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
-		//document.body.appendChild(renderer.domElement);
+		document.body.appendChild(this.renderer.domElement);
 		
 		
 		// Define the container for the renderer
-		this.container = $('#basic-scene');
+		//this.container = $('body');
 		
 		
 		
@@ -62,17 +65,22 @@ class Scene {
 		
 		//this.scene.add(this.world.mesh);
 		// Define the size of the renderer
-		this.setAspect();
+		//this.setAspect();
 		// Insert the renderer in the container
-		this.container.prepend(this.renderer.domElement);
+		//this.container.prepend(this.renderer.domElement);
 		// Set the camera to look at our user's character
 		//this.setFocus(this.user.mesh);
 		// Start the events handlers
 		//this.setControls();
+		console.log(this.scene);
+		console.log(this.camera);
+		
+		console.log("ending scene init");
 	}
 	
 	// Event handlers
 	setControls() {
+		console.log("setting controls");
 		// Within jQuery's methods, we won't be able to access "this"
 		//user 3w= this.user,
 			// State of the different controls
@@ -152,10 +160,11 @@ class Scene {
 	
 	// Defining the renderer's size
 	setAspect() {
+		console.log("setting aspect");
 		// Fit the container's full width
 		var w = this.container.width(),
 			// Fit the initial visible area's height
-			h = jQuery(window).height() - this.container.offset().top - 20;
+			h = this.container.height();//jQuery(window).height() - this.container.offset().top - 20;
 		// Update the renderer and the camera
 		this.renderer.setSize(w, h);
 		this.camera.aspect = w / h;
@@ -172,9 +181,9 @@ class Scene {
 	// Update and draw the scene
 	frame() {
 		// Run a new step of the user's motions
-		this.user.motion();
+		//this.user.motion();
 		// Set the camera to look at our user's character
-		this.setFocus(this.user.mesh);
+		//this.setFocus(this.user.mesh);
 		// And draw !
 		this.renderer.render(this.scene, this.camera);
 	}

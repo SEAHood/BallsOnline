@@ -5,8 +5,12 @@ requirejs.config({
         "game": "../game",
         "scene": "../scene",
         "player": "../player",
-        "three": "../three/three.min",
         "sizzle": "/src/sizzle/dist/sizzle"
+    },
+    shim: {
+        three: {
+            exports: 'THREE'
+        }
     }
 });
 require(["game"]);
