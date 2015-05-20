@@ -7,6 +7,6 @@ gulp.task('default', function() {
 
 gulp.task('compile', function(){
 	gulp.src(['src/*.ts'])
-		.pipe(typescript())
+		.pipe(typescript({module: "amd"}))
 		.pipe(gulp.dest('js/'))
 });

@@ -1,4 +1,4 @@
-// Type definitions for three.js r69
+// Type definitions for three.js r70
 // Project: http://mrdoob.github.com/three.js/
 // Definitions by: Kon <http://phyzkit.net/>, Satoru Kimura <https://github.com/gyohk>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped  
@@ -97,14 +97,12 @@ declare module THREE {
 
     // Mapping modes
     export enum Mapping { }
-    export interface MappingConstructor {
-        new (): Mapping;
-    }
-    export var UVMapping: MappingConstructor;
-    export var CubeReflectionMapping: MappingConstructor;
-    export var CubeRefractionMapping: MappingConstructor;
-    export var SphericalReflectionMapping: MappingConstructor;
-    export var SphericalRefractionMapping: MappingConstructor;
+    export var UVMapping: Mapping;
+    export var CubeReflectionMapping: Mapping;
+    export var CubeRefractionMapping: Mapping;
+    export var EquirectangularReflectionMapping: Mapping;
+    export var EquirectangularRefractionMapping: Mapping;
+    export var SphericalReflectionMapping: Mapping;
 
     // Wrapping modes
     export enum Wrapping { }
@@ -144,6 +142,7 @@ declare module THREE {
     export var RGBAFormat: PixelFormat;
     export var LuminanceFormat: PixelFormat;
     export var LuminanceAlphaFormat: PixelFormat;
+    export var RGBEFormat: PixelFormat;
 
     // Compressed texture formats
     // DDS / ST3C Compressed texture formats
@@ -489,7 +488,7 @@ declare module THREE {
         computeTangents(): void;
 
         computeOffsets(indexBufferSize: number): void;
-        merge(): void;
+        merge(geometry: BufferGeometry, offset: number): BufferGeometry;
         normalizeNormals(): void;
         reorderBuffers(indexBuffer: number, indexMap: number[], vertexCount: number): void;
         toJSON(): any;
@@ -928,6 +927,8 @@ declare module THREE {
 
         merge( geometry: Geometry, matrix: Matrix, materialIndexOffset: number): void;
 
+        mergeMesh( mesh: Mesh ): void;
+
         /**
          * Checks for duplicate vertices using hashmap.
          * Duplicated vertices are removed and faces' vertices are updated.
@@ -1017,11 +1018,6 @@ declare module THREE {
          * Object's local scale.
          */
         scale: Vector3;
-
-        /**
-         * Override depth-sorting order if non null.
-         */
-        renderDepth: number;
 
         /**
          * When this is set, then the rotationMatrix gets calculated every frame.
@@ -1195,6 +1191,7 @@ declare module THREE {
          */
         remove(object: Object3D): void;
 
+        /* deprecated */
         getChildByName( name: string, recursive?: boolean ): Object3D;
 
         /**
@@ -1211,11 +1208,13 @@ declare module THREE {
          */
         getObjectByName(name: string, recursive?: boolean): Object3D;
 
-        getWorldPosition(optionalTarget: Vector3): Vector3;
-        getWorldQuaternion(optionalTarget: Quaternion): Quaternion;
-        getWorldRotation(optionalTarget: Euler): Euler;
-        getWorldScale(optionalTarget: Vector3): Vector3;
-        getWorldDirection(optionalTarget: Vector3): Vector3;
+        getObjectByProperty( name: string, value: string, recursive?: boolean ): Object3D;
+        
+        getWorldPosition(optionalTarget?: Vector3): Vector3;
+        getWorldQuaternion(optionalTarget?: Quaternion): Quaternion;
+        getWorldRotation(optionalTarget?: Euler): Euler;
+        getWorldScale(optionalTarget?: Vector3): Vector3;
+        getWorldDirection(optionalTarget?: Vector3): Vector3;
 
         /**
          * Translates object along arbitrary axis by distance.
@@ -1225,6 +1224,8 @@ declare module THREE {
         traverse(callback: (object: Object3D) => any): void;
 
         traverseVisible(callback: (object: Object3D) => any): void;
+
+        traverseAncestors(callback: (object: Object3D) => any): void;
 
         /**
          * Updates local transform.
@@ -1278,6 +1279,7 @@ declare module THREE {
         precision: number;
         linePrecision: number;
         set(origin: Vector3, direction: Vector3): void;
+        setFromCamera(coords: { x: number; y: number;}, camera: Camera ): void;
         intersectObject(object: Object3D, recursive?: boolean): Intersection[];
         intersectObjects(objects: Object3D[], recursive?: boolean): Intersection[];
     }
@@ -1684,6 +1686,8 @@ declare module THREE {
          */
         statusDomElement: HTMLElement;
 
+        imageLoader: ImageLoader;
+
         /**
          * Will be called when load starts.
          * The default is a function with empty body.
@@ -1723,10 +1727,17 @@ declare module THREE {
         add(regex:string, loader:Loader):void;
         get(file: string):Loader;
     }
+    
+    export class BinaryTextureLoader {
+        constructor();
+        
+        load(url: string, onLoad: (dataTexture: DataTexture) => void, onProgress?: (event: any) => void, onError?: (event: any) => void): void;
+    }
 
     export class BufferGeometryLoader {
         constructor(manager?: LoadingManager);
-
+        
+        manager: LoadingManager;
         load(url: string, onLoad: (bufferGeometry: BufferGeometry) => void, onProgress?: (event: any) => void, onError?: (event: any) => void): void;
         setCrossOrigin(crossOrigin: string): void;
         parse(json: any): BufferGeometry;
@@ -1749,6 +1760,10 @@ declare module THREE {
         load(url: string, onLoad: (bufferGeometry: BufferGeometry) => void, onError?: (event: any) => void): void;
     }
 
+    export class DataTextureLoader extends BinaryTextureLoader {
+        // alias for BinaryTextureLoader.
+    }
+
     /*
      * GeometryLoader class is experimental, and it is not yet included in the compiled source code.
      *
@@ -1764,6 +1779,8 @@ declare module THREE {
     export class ImageLoader {
         constructor(manager?: LoadingManager);
 
+        cache: Cache;
+        manager: LoadingManager;
         crossOrigin: string;
 
         /**
@@ -1827,6 +1844,8 @@ declare module THREE {
     export class MaterialLoader {
         constructor(manager?: LoadingManager);
 
+        manager: LoadingManager;
+
         load(url: string, onLoad: (material: Material) => void): void;
         setCrossOrigin(crossOrigin: string): void;
         parse(json: any): Material;
@@ -1834,6 +1853,9 @@ declare module THREE {
 
     export class ObjectLoader {
         constructor(manager?: LoadingManager);
+
+        manager: LoadingManager;
+        crossOrigin: string;
 
         load(url: string, onLoad: (object: Object3D) => void): void;
         setCrossOrigin(crossOrigin: string): void;
@@ -1849,7 +1871,10 @@ declare module THREE {
      */
     export class TextureLoader {
         constructor(manager?: LoadingManager);
+        
+        manager: LoadingManager;
         crossOrigin: string;
+        
         /**
          * Begin loading from url
          *
@@ -1862,6 +1887,8 @@ declare module THREE {
     export class XHRLoader {
         constructor(manager?: LoadingManager);
 
+        cache: Cache;
+        manager: LoadingManager;
         responseType: string;
         crossOrigin: string;
 
@@ -2717,12 +2744,14 @@ declare module THREE {
 
         set(x: number, y: number, z: number, order?: string): Euler;
         copy(euler: Euler): Euler;
-        setFromRotationMatrix(m: Matrix4, order?: string): Euler;
+        setFromRotationMatrix(m: Matrix4, order?: string, update?: boolean): Euler;
         setFromQuaternion(q:Quaternion, order?: string, update?: boolean): Euler;
+        setFromVector3( v: Vector3, order?: string ): Euler;
         reorder(newOrder: string): Euler;
         equals(euler: Euler): boolean;
         fromArray(xyzo: any[]): Euler;
         toArray(): any[];
+        toVector3(optionalResult?: Vector3): Vector3;
         onChange: () => void;
 
         clone(): Euler;
@@ -2968,6 +2997,9 @@ declare module THREE {
          */
         copy(m: Matrix4): Matrix4;
         copyPosition(m: Matrix4): Matrix4;
+
+        extractBasis( xAxis: Vector3, yAxis: Vector3, zAxis: Vector3): Matrix4;
+        makeBasis( xAxis: Vector3, yAxis: Vector3, zAxis: Vector3): Matrix4;
 
         /**
          * Copies the rotation component of the supplied matrix m into this matrix rotation component.
@@ -3610,6 +3642,9 @@ declare module THREE {
         fromArray(xy: number[], offset?: number): Vector2;
 
         toArray(xy?: number[], offset?: number): number[];
+
+        fromAttribute( attribute: BufferAttribute, index: number, offset?: number): Vector2;
+
         /**
          * Clones this vector.
          */
@@ -3791,6 +3826,8 @@ declare module THREE {
 
         toArray(xyz?: number[], offset?: number): number[];
 
+        fromAttribute( attribute: BufferAttribute, index: number, offset?: number): Vector3;
+
         /**
          * Clones this vector.
          */
@@ -3940,6 +3977,8 @@ declare module THREE {
 
         toArray(xyzw?: number[], offset?: number): number[];
 
+        fromAttribute( attribute: BufferAttribute, index: number, offset?: number): Vector4;
+
         /**
          * Clones this vector.
          */
@@ -3994,8 +4033,8 @@ declare module THREE {
         constructor(geometry?: BufferGeometry, material?: LineBasicMaterial, mode?: number);
         constructor(geometry?: BufferGeometry, material?: ShaderMaterial, mode?: number);
 
-        geometry: Geometry;
-        material: LineBasicMaterial;
+        geometry: any; // Geometry or BufferGeometry;
+        material: Material; // LineDashedMaterial or LineBasicMaterial or ShaderMaterial
         mode: LineMode;
 
         raycast(raycaster: Raycaster, intersects: any): void;
@@ -4088,7 +4127,6 @@ declare module THREE {
          * An instance of Material, defining the object's appearance. Default is a ParticleBasicMaterial with randomised colour.
          */
         material: Material;
-        sortParticles: boolean;
 
         raycast(raycaster: Raycaster, intersects: any): void;
         clone(object?: PointButt): PointButt;
@@ -4227,8 +4265,6 @@ declare module THREE {
         //context:WebGLRenderingContext;
         context: any;
 
-        devicePixelRatio: number;
-
         /**
          * Defines whether the renderer should automatically clear its output before rendering.
          */
@@ -4329,6 +4365,8 @@ declare module THREE {
          */
         getContext(): WebGLRenderingContext;
 
+        forceContextLoss(): void;
+
         /**
          * Return a Boolean true if the context supports vertex textures.
          */
@@ -4340,6 +4378,8 @@ declare module THREE {
         supportsBlendMinMax(): boolean;
         getMaxAnisotropy(): number;
         getPrecision(): string;
+        getPixelRatio(): number;
+        setPixelRatio(value: number): void;
 
         /**
          * Resizes the output canvas to (width, height), and also sets the viewport to fit that size, starting in (0, 0).
@@ -4367,6 +4407,8 @@ declare module THREE {
         setClearColor(color: Color, alpha?: number): void;
         setClearColor(color: string, alpha?: number): void;
         setClearColor(color: number, alpha?: number): void;
+
+        setClearAlpha(alpha: number): void;
 
         /**
          * Sets the clear color, using hex for the color and alpha for the opacity.
@@ -4800,18 +4842,7 @@ declare module THREE {
             );
         constructor(
             image: HTMLImageElement,
-            mapping?: MappingConstructor,
-            wrapS?: Wrapping,
-            wrapT?: Wrapping,
-            magFilter?: TextureFilter,
-            minFilter?: TextureFilter,
-            format?: PixelFormat,
-            type?: TextureDataType,
-            anisotropy?: number
-            );
-        constructor(
-            image: HTMLCanvasElement,
-            mapping?: MappingConstructor,
+            mapping?: Mapping,
             wrapS?: Wrapping,
             wrapT?: Wrapping,
             magFilter?: TextureFilter,
@@ -4859,7 +4890,7 @@ declare module THREE {
     class VideoTexture extends Texture {
         constructor(
             video: HTMLVideoElement,
-            mapping?: MappingConstructor,
+            mapping?: Mapping,
             wrapS?: Wrapping,
             wrapT?: Wrapping,
             magFilter?: TextureFilter,
@@ -4978,7 +5009,7 @@ declare module THREE {
 
         animations: any[];
 
-        init(data: AnimationData): void;
+        init(data: AnimationData): AnimationData;
         parse(root: Mesh): Object3D[];
         play(animation: Animation): void;
         stop(animation: Animation): void;
@@ -5012,6 +5043,8 @@ declare module THREE {
         currentTime: number;
         duration: number;
         loop: boolean;
+        lastFrame: number;
+        currentFrame: number;
         isPlaying: boolean;
 
         play(): void;
@@ -5342,7 +5375,7 @@ declare module THREE {
          * @param heightSegments — Number of rows of faces along the height of the cylinder.
          * @param openEnded - A Boolean indicating whether or not to cap the ends of the cylinder.
          */
-        constructor(radiusTop?: number, radiusBottom?: number, height?: number, radiusSegments?: number, heightSegments?: number, openEnded?: boolean);
+        constructor(radiusTop?: number, radiusBottom?: number, height?: number, radiusSegments?: number, heightSegments?: number, openEnded?: boolean, thetaStart?: number, thetaLength?: number);
 
         parameters: {
             radiusTop: number;
@@ -5351,6 +5384,8 @@ declare module THREE {
             radialSegments: number;
             heightSegments: number;
             openEnded: boolean;
+            thetaStart: number;
+            thetaLength: number;
         };
     }
 
@@ -5533,9 +5568,10 @@ declare module THREE {
             heightScale: number;
         };
     }
-
+    
+    
     export class TubeGeometry extends Geometry {
-        constructor(path: Path, segments?: number, radius?: number, radiusSegments?: number, closed?: boolean);
+        constructor(path: Path, segments?: number, radius?: number, radiusSegments?: number, closed?: boolean, taper?: (u: number) => number);
 
         parameters: {
             path: Path;
@@ -5543,12 +5579,16 @@ declare module THREE {
             radius: number;
             radialSegments: number;
             closed: boolean;
+            taper: (u: number) => number; // NoTaper or SinusoidalTaper;
         };
         tangents: Vector3[];
         normals: Vector3[];
         binormals: Vector3[];
 
-        FrenetFrames(path: Path, segments: number, closed: boolean): void;
+        static NoTaper(u?: number): number;
+        static SinusoidalTaper(u: number): number;
+        static FrenetFrames(path: Path, segments: number, closed: boolean): void;
+        
     }
 
     // Extras / Helpers /////////////////////////////////////////////////////////////////////
@@ -5572,7 +5612,7 @@ declare module THREE {
         constructor(object: Object3D, hex?: number);
 
         object: Object3D;
-        box: Box3[];
+        box: Box3;
 
         update(): void;
     }
