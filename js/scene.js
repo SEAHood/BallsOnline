@@ -1,4 +1,4 @@
-define(["require", "exports", "three", "jquery", "./player"], function (require, exports, THREE, jQuery, Player) {
+define(["require", "exports", "three", "jquery", "./player", "./world"], function (require, exports, THREE, jQuery, Player, World) {
     // import Test = BallsOnline.Test;
     var Scene = (function () {
         //controls: any;
@@ -20,6 +20,8 @@ define(["require", "exports", "three", "jquery", "./player"], function (require,
             //this.light.shadowDarkness = 0.5;
             //this.light.shadowCameraVisible = true;
             this.scene.add(this.light);
+            this.light = new THREE.AmbientLight(0x707070); // soft white light
+            this.scene.add(this.light);
             //Setup renderer
             this.renderer = new THREE.WebGLRenderer();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -28,6 +30,11 @@ define(["require", "exports", "three", "jquery", "./player"], function (require,
             document.body.appendChild(this.renderer.domElement);
             // Define the container for the renderer
             //this.container = $('body');
+            this.world = new World();
+            this.scene.add(this.world.terrain);
+            this.cameraControls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+            this.cameraControls.noPan = true;
+            this.cameraControls.addEventListener('change', this.frame);
             // Create the user's character
             this.user = new Player({
                 color: 0x7A43B6
@@ -46,10 +53,31 @@ define(["require", "exports", "three", "jquery", "./player"], function (require,
             //this.setFocus(this.user.mesh);
             // Start the events handlers
             //this.setControls();
+            this.createSkybox();
+            //var stats = new Stats();
+            //document.body.appendChild(Stats.domElement);	
             console.log(this.scene);
             console.log(this.camera);
             console.log("ending scene init");
         }
+        Scene.prototype.createSkybox = function () {
+            var urlPrefix = "skybox/stormydays_";
+            var urls = [
+                urlPrefix + "ft.jpg", urlPrefix + "bk.jpg",
+                urlPrefix + "up.jpg", urlPrefix + "dn.jpg",
+                urlPrefix + "rt.jpg", urlPrefix + "lf.jpg"];
+            var materialArray = [];
+            for (var i = 0; i < 6; i++) {
+                materialArray.push(new THREE.MeshBasicMaterial({
+                    map: THREE.ImageUtils.loadTexture(urls[i]),
+                    side: THREE.BackSide
+                }));
+            }
+            var skyGeometry = new THREE.CubeGeometry(10000, 10000, 10000);
+            var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
+            var skyBox = new THREE.Mesh(skyGeometry, skyMaterial);
+            this.scene.add(skyBox);
+        };
         // Event handlers
         Scene.prototype.setControls = function () {
             console.log("setting controls");
@@ -92,7 +120,7 @@ define(["require", "exports", "three", "jquery", "./player"], function (require,
                     return;
                 }
                 // Update the character's direction
-                user.setDirection(controls);
+                //user.setDirection(controls);
             });
             // When the user releases a key
             jQuery(document).keyup(function (e) {
@@ -122,7 +150,7 @@ define(["require", "exports", "three", "jquery", "./player"], function (require,
                     return;
                 }
                 // Update the character's direction
-                user.setDirection(controls);
+                //user.setDirection(controls);
             });
             // On resize
             jQuery(window).resize(function () {
@@ -152,7 +180,7 @@ define(["require", "exports", "three", "jquery", "./player"], function (require,
             // Run a new step of the user's motions
             //this.user.motion();
             // Set the camera to look at our user's character
-            //this.setFocus(this.user.mesh);
+            this.setFocus(this.user.mesh);
             // And draw !
             this.renderer.render(this.scene, this.camera);
         };

@@ -5,10 +5,15 @@ requirejs.config({
         "game": "../game",
         "scene": "../scene",
         "player": "../player",
+        "world": "../world",
         "sizzle": "/src/sizzle/dist/sizzle"
     },
     shim: {
         three: {
+            exports: 'THREE'
+        },
+        threeorbitcontrols: {
+            deps: ['three'],
             exports: 'THREE'
         }
     }

@@ -6,6 +6,7 @@ requirejs.config({
 		"game": "../game",
 		"scene": "../scene",
 		"player": "../player",
+		"world": "../world",
 		"sizzle": "/src/sizzle/dist/sizzle"
     },
 	shim: {

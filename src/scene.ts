@@ -2,17 +2,20 @@
 ///<reference path="../typings/jquery/jquery.d.ts"/>
 import THREE = require("three");
 import jQuery = require("jquery");
+//import OrbitControls = require("threeorbitcontrols");
+//import Stats = require("stats");
 import Player = require("./player");
+import World = require("./world");
 // import Test = BallsOnline.Test;
-
 class Scene {
 	scene: THREE.Scene;
 	camera: THREE.PerspectiveCamera;
+	cameraControls: THREE.OrbitControls;
 	light: THREE.Light;
 	renderer: THREE.WebGLRenderer;
 	container: any;
-	user: any;
-	world: any;
+	user: Player;
+	world: World;
 	
 	//controls: any;
 	
@@ -30,12 +33,18 @@ class Scene {
 		this.camera.position.y = 50;
 		this.camera.position.z = 70;		
 		this.scene.add(this.camera);
+		
+		
+		
 				
 		//Setup light
 		this.light = new THREE.PointLight( 0xffffff, 1, 100 );
 		this.light.position.set( -10, 20, 10 );
 		//this.light.shadowDarkness = 0.5;
 		//this.light.shadowCameraVisible = true;
+		this.scene.add(this.light);
+		
+		this.light = new THREE.AmbientLight( 0x707070 ); // soft white light
 		this.scene.add(this.light);
 		
 		//Setup renderer
@@ -48,8 +57,13 @@ class Scene {
 		
 		// Define the container for the renderer
 		//this.container = $('body');
+		this.world = new World();
+		this.scene.add(this.world.terrain);
 		
 		
+		this.cameraControls = new THREE.OrbitControls(this.camera, this.renderer.domElement); 
+		this.cameraControls.noPan = true;
+		this.cameraControls.addEventListener('change', this.frame);
 		
 		
 		// Create the user's character
@@ -72,10 +86,43 @@ class Scene {
 		//this.setFocus(this.user.mesh);
 		// Start the events handlers
 		//this.setControls();
+		
+		
+		this.createSkybox();
+		
+		
+		 
+		//var stats = new Stats();
+		//document.body.appendChild(Stats.domElement);	
+		
+		
+		
 		console.log(this.scene);
 		console.log(this.camera);
 		
 		console.log("ending scene init");
+	}
+	
+	createSkybox() {		
+		var urlPrefix = "skybox/stormydays_";
+			
+		var urls = [ 	
+			urlPrefix + "ft.jpg", urlPrefix + "bk.jpg",
+			urlPrefix + "up.jpg", urlPrefix + "dn.jpg",
+			urlPrefix + "rt.jpg", urlPrefix + "lf.jpg"	];
+		
+		var materialArray = [];
+		for (var i = 0; i < 6; i++) {		
+			materialArray.push( new THREE.MeshBasicMaterial({
+				map: THREE.ImageUtils.loadTexture(urls[i]),
+				side: THREE.BackSide
+			}));
+		}
+		
+		 var skyGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+		 var skyMaterial = new THREE.MeshFaceMaterial( materialArray );
+		 var skyBox = new THREE.Mesh( skyGeometry, skyMaterial );
+		 this.scene.add(skyBox);
 	}
 	
 	// Event handlers
@@ -120,7 +167,7 @@ class Scene {
 				return;
 			}
 			// Update the character's direction
-			user.setDirection(controls);
+			//user.setDirection(controls);
 		});
 		// When the user releases a key
 		jQuery(document).keyup(function (e) {
@@ -149,7 +196,7 @@ class Scene {
 				return;
 			}
 			// Update the character's direction
-			user.setDirection(controls);
+			//user.setDirection(controls);
 		});
 		// On resize
 		jQuery(window).resize(function () {
@@ -183,7 +230,7 @@ class Scene {
 		// Run a new step of the user's motions
 		//this.user.motion();
 		// Set the camera to look at our user's character
-		//this.setFocus(this.user.mesh);
+		this.setFocus(this.user.mesh);
 		// And draw !
 		this.renderer.render(this.scene, this.camera);
 	}
