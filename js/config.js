@@ -6,6 +6,7 @@ requirejs.config({
         "scene": "../scene",
         "player": "../player",
         "world": "../world",
+        "network": "../network",
         "chat": "../chat",
         "socket.io": "../socket.io/socket.io",
         "sizzle": "/src/sizzle/dist/sizzle"

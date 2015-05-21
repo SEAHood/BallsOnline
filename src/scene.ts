@@ -2,6 +2,7 @@
 ///<reference path="../typings/jquery/jquery.d.ts"/>
 ///<reference path="../typings/stats/stats.d.ts"/>
 
+///<reference path="../typings/socket.io/socket.io.d.ts"/>
 
 import THREE = require("three");
 import jQuery = require("jquery");
@@ -9,7 +10,7 @@ import jQuery = require("jquery");
 import Stats = require("stats");
 import Player = require("./player");
 import World = require("./world");
-
+import io = require("socket.io");
 
 // import Test = BallsOnline.Test;
 class Scene {
@@ -22,6 +23,8 @@ class Scene {
 	player: Player;
 	world: World;
 	stats: Stats;
+	rPlayers: any[];
+	socket: any;
 	
 	controls = {
 		left: false,
@@ -33,6 +36,10 @@ class Scene {
 	//controls: any;
 	
 	constructor() {
+		this.rPlayers = [];
+		
+		this.socket = io.connect("82.36.121.144:3000"); //How can this be.. better?
+		
 		console.log("starting scene init");
 	
 		this.container = jQuery('#test');
@@ -40,7 +47,6 @@ class Scene {
 		this.scene = new THREE.Scene();
 		
 		//Setup camera
-		//this.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 10000);
 		this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20000);
 		this.camera.position.x = 0;
 		this.camera.position.y = 50;
@@ -62,7 +68,7 @@ class Scene {
 		
 		//Setup renderer
 		this.renderer = new THREE.WebGLRenderer();
-		this.renderer.setSize(window.innerWidth, window.innerHeight);
+		//this.renderer.setSize(window.innerWidth, window.innerHeight);
 		this.renderer.shadowMapEnabled = true;
 		this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
 		document.body.appendChild(this.renderer.domElement);
@@ -95,7 +101,7 @@ class Scene {
 		
 		//this.scene.add(this.world.mesh);
 		// Define the size of the renderer
-		//this.setAspect();
+		this.setAspect();
 		// Insert the renderer in the container
 		//this.container.prepend(this.renderer.domElement);
 		// Set the camera to look at our user's character
@@ -113,8 +119,6 @@ class Scene {
 		
 		
 		
-		console.log(this.scene);
-		console.log(this.camera);
 		
 		console.log("ending scene init");
 	}
@@ -143,6 +147,35 @@ class Scene {
 	
 	// Event handlers
 	setControls() {
+	
+		//socket events - MOVE THIS
+		var player = this.player;
+		var rPlayers = this.rPlayers;
+		var scene = this.scene;		
+		
+		this.socket.on('movement', function(rPlayer){
+			if (rPlayer.guid != player.guid)
+			{
+				if (!(rPlayer.guid in rPlayers)) {
+					//var color = getRandomColor();	
+					rPlayers[rPlayer.guid] = new THREE.Mesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: rPlayer.color }));
+					rPlayers[rPlayer.guid].position.set
+					(
+						rPlayer.position.x, 
+						rPlayer.position.y,
+						rPlayer.position.z
+					);
+					scene.add(rPlayers[rPlayer.guid]);
+				} else {
+					rPlayers[rPlayer.guid].position.set(rPlayer.position.x, rPlayer.position.y, rPlayer.position.z);
+				}
+			}
+		});
+	
+	
+	
+	
+	
 		console.log("setting controls");
 		// Within jQuery's methods, we won't be able to access "this"
 		//user 3w= this.user,
@@ -220,9 +253,9 @@ class Scene {
 	setAspect() {
 		console.log("setting aspect");
 		// Fit the container's full width
-		var w = this.container.width(),
+		var w = window.innerWidth,
 			// Fit the initial visible area's height
-			h = this.container.height();//jQuery(window).height() - this.container.offset().top - 20;
+			h = window.innerHeight;//jQuery(window).height() - this.container.offset().top - 20;
 		// Update the renderer and the camera
 		this.renderer.setSize(w, h);
 		this.camera.aspect = w / h;
@@ -243,7 +276,7 @@ class Scene {
 		var controls = this.controls;
 		var player = this.player;
 		
-		console.log(controls);
+		
 		
 		if (controls.left || controls.up || controls.right || controls.down) {
 	
@@ -256,7 +289,7 @@ class Scene {
 		if (controls.right)
 			player.mesh.position.setX(player.mesh.position.x - 1);
 						
-		//socket.emit('movement', {'guid': guid, 'position': player.mesh.position});
+		this.socket.emit('movement', {'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position});
 	}
 		// Run a new step of the user's motions
 		//this.user.motion();

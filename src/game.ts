@@ -6,8 +6,7 @@ var scene = new Scene();
 var chat = new Chat();
 
 function animate () {
-	console.log(requestAnimationFrame);
-    requestAnimationFrame(animate);
+	requestAnimationFrame(animate);
     scene.frame();
 }
 animate();

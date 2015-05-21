@@ -3,7 +3,6 @@ define(["require", "exports", "./scene", "./chat"], function (require, exports, 
     var scene = new Scene();
     var chat = new Chat();
     function animate() {
-        console.log(requestAnimationFrame);
         requestAnimationFrame(animate);
         scene.frame();
     }

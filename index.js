@@ -21,8 +21,7 @@ io.on('connection', function(socket){
 		var seconds = new Date().getTime() / 1000;
 		console.log('[' + seconds + ']' + player.guid);
 	});
-	
-	
+		
 	socket.on('chat message', function(msg){
 		console.log("Message received from " + address + " - Body: " + msg);
 		io.emit('chat message', msg);
@@ -31,8 +30,6 @@ io.on('connection', function(socket){
 	socket.on('test', function(){
 		console.log("Test received");
     });
-	
-	
 });
 
 
