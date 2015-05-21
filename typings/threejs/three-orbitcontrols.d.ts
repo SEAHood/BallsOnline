@@ -6,7 +6,7 @@
 /// <reference path="./three.d.ts" />
 
 declare module THREE {
-    export class OrbitControls {
+    declare class OrbitControls {
         constructor(object:Camera, domElement?:HTMLElement);
 
         object:Camera;
@@ -55,4 +55,8 @@ declare module THREE {
         removeEventListener(type: string, listener: (event: any) => void): void;
         dispatchEvent(event: { type: string; target: any; }): void;
     }
+}
+
+declare module 'three-orbitcontrols' {
+    export=THREE.OrbitControls;
 }

@@ -1,8 +1,17 @@
-define(["require", "exports", "three", "jquery", "./player", "./world"], function (require, exports, THREE, jQuery, Player, World) {
+///<reference path="../typings/threejs/three.d.ts"/>
+///<reference path="../typings/jquery/jquery.d.ts"/>
+///<reference path="../typings/stats/stats.d.ts"/>
+define(["require", "exports", "three", "jquery", "stats", "./player", "./world"], function (require, exports, THREE, jQuery, Stats, Player, World) {
     // import Test = BallsOnline.Test;
     var Scene = (function () {
         //controls: any;
         function Scene() {
+            this.controls = {
+                left: false,
+                up: false,
+                right: false,
+                down: false
+            };
             console.log("starting scene init");
             this.container = jQuery('#test');
             // Create a scene, a camera, a light and a WebGL renderer with Three.JS
@@ -12,7 +21,7 @@ define(["require", "exports", "three", "jquery", "./player", "./world"], functio
             this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20000);
             this.camera.position.x = 0;
             this.camera.position.y = 50;
-            this.camera.position.z = 70;
+            this.camera.position.z = -70;
             this.scene.add(this.camera);
             //Setup light
             this.light = new THREE.PointLight(0xffffff, 1, 100);
@@ -32,14 +41,16 @@ define(["require", "exports", "three", "jquery", "./player", "./world"], functio
             //this.container = $('body');
             this.world = new World();
             this.scene.add(this.world.terrain);
-            this.cameraControls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
-            this.cameraControls.noPan = true;
-            this.cameraControls.addEventListener('change', this.frame);
+            //this.cameraControls = new THREE.OrbitControls(this.camera, this.renderer.domElement); 
+            //this.cameraControls.noPan = true;
+            //this.cameraControls.addEventListener('change', this.frame);
+            this.stats = new Stats();
+            document.body.appendChild(this.stats.domElement);
             // Create the user's character
-            this.user = new Player({
+            this.player = new Player({
                 color: 0x7A43B6
             });
-            this.scene.add(this.user.mesh);
+            this.scene.add(this.player.mesh);
             // Create the "world" : a 3D representation of the place we'll be putting our character in
             //this.world = new World({
             //	color: 0xF5F5F5
@@ -52,7 +63,7 @@ define(["require", "exports", "three", "jquery", "./player", "./world"], functio
             // Set the camera to look at our user's character
             //this.setFocus(this.user.mesh);
             // Start the events handlers
-            //this.setControls();
+            this.setControls();
             this.createSkybox();
             //var stats = new Stats();
             //document.body.appendChild(Stats.domElement);	
@@ -84,13 +95,8 @@ define(["require", "exports", "three", "jquery", "./player", "./world"], functio
             // Within jQuery's methods, we won't be able to access "this"
             //user 3w= this.user,
             // State of the different controls
-            var user = this.user;
-            var controls = {
-                left: false,
-                up: false,
-                right: false,
-                down: false
-            };
+            var player = this.player;
+            var controls = this.controls;
             var basicScene = this;
             // When the user presses a key 
             jQuery(document).keydown(function (e) {
@@ -177,10 +183,25 @@ define(["require", "exports", "three", "jquery", "./player", "./world"], functio
         };
         // Update and draw the scene
         Scene.prototype.frame = function () {
+            this.stats.update();
+            var controls = this.controls;
+            var player = this.player;
+            console.log(controls);
+            if (controls.left || controls.up || controls.right || controls.down) {
+                if (controls.up)
+                    player.mesh.position.setZ(player.mesh.position.z + 1);
+                if (controls.down)
+                    player.mesh.position.setZ(player.mesh.position.z - 1);
+                if (controls.left)
+                    player.mesh.position.setX(player.mesh.position.x + 1);
+                if (controls.right)
+                    player.mesh.position.setX(player.mesh.position.x - 1);
+            }
             // Run a new step of the user's motions
             //this.user.motion();
             // Set the camera to look at our user's character
-            this.setFocus(this.user.mesh);
+            //this.setFocus(this.world.terrain);
+            this.setFocus(this.player.mesh);
             // And draw !
             this.renderer.render(this.scene, this.camera);
         };

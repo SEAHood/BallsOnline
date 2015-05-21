@@ -18,3 +18,7 @@ declare class Stats {
 	
 	update(): void;
 }
+
+declare module 'stats' {
+    export=Stats;
+}

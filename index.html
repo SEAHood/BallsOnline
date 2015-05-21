@@ -12,7 +12,17 @@
 			#stats #fps { background: #000 !important }
 			#stats #fps #fpsText { color: #aaa !important }
 			
-			#title { color: #fff; position: absolute; width: 100%; text-align: right; padding-right: 10px; }
+			#title { color: #000; position: absolute; right: 0; text-align: right; width:20%; }
+			
+			#title p {
+				margin:0;
+				margin-right: 20px;
+				font-weight: bold;
+			}
+			
+			#title img {
+				width:100%;
+			}
 			
 			#chat { 
 				position: fixed; 
@@ -31,8 +41,9 @@
 	</head>
 	<body>
 		<div id="title">
-			Balls Online 2015<br/>
-			Now with 100% more chat!
+			<img src="logo.jpg"/>
+			<br/>
+			<p>Now with 100% more chat and logos and errors!</p>
 		</div>
 		<div id="chat">
 			<ul id="messages"></ul>

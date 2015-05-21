@@ -23,10 +23,16 @@ io.on('connection', function(socket){
 	});
 	
 	
-	socket.on('chat message', function(msg, user){
-		console.log("Message received from " + user + " - Body: " + msg);
-		io.emit('chat message', msg, user);
+	socket.on('chat message', function(msg){
+		console.log("Message received from " + address + " - Body: " + msg);
+		io.emit('chat message', msg);
     });
+	
+	socket.on('test', function(){
+		console.log("Test received");
+    });
+	
+	
 });
 
 
