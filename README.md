@@ -14,6 +14,7 @@
   - Collision detection (Physijs)
   - Gravity (Physijs)
   - Friction (Physijs)
+- Add jumping
 - Create large terrain to navigate
 - Usernames - move away from guid as much as possible (?)
 - ~~Implement TypeScript version for modularity~~
