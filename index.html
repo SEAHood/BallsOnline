@@ -2,22 +2,37 @@
 <html>
 	<head>
 		<title>Thang</title>
+		<link href='http://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
 		<style>
 			
-			html, body { padding:0; margin:0; overflow: hidden; }
+			html, body { font-family: 'Oswald', sans-serif; padding:0; margin:0; overflow: hidden; }
 			canvas {  padding: 0; margin: 0; }
-		
 		
 			#stats { position: absolute; top:0; left: 0 }
 			#stats #fps { background: #000 !important }
 			#stats #fps #fpsText { color: #aaa !important }
 			
-			#title { color: #000; position: absolute; right: 0; text-align: right; width:20%; }
+			#title { padding: 1%; font-family: 'Oswald', sans-serif; color: #000; position: absolute; right: 0; text-align: right; width:15%; }
 			
 			#title p {
+				font-size: 1vw;
 				margin:0;
-				margin-right: 20px;
-				font-weight: bold;
+				/*margin-right: 5%;*/
+			}
+			
+			#title h1 {
+				font-size: 2.5vw;
+				margin: 0;
+				/*margin-right: 5%;*/
+				margin-bottom: 5%;
+				margin-top: 10%;
+				line-height: 110%;
+			}
+			
+			#title h2 {
+				font-size: 1.5vw;
+				margin: 0;
+				/*margin-right: 5%;*/
 			}
 			
 			#title img {
@@ -31,20 +46,37 @@
 				height: 20%; 
 			}
 			
+			.player-joined {
+				color: #003300;
+			}
+			
+			.player-left {
+				color: #330000;
+			}
+			
 			form { width: 100%; position: absolute; bottom: 0; }
-			form input { width: 90%; }
-			form button { width: 9%; background: rgb(130, 224, 255); }
+			form input { font-family: 'Oswald', sans-serif; width: 90%; }
+			form button { font-family: 'Oswald', sans-serif; width: 9%; background: rgb(130, 224, 255); }
 			#messages { overflow: auto; height: 80%; list-style-type: none; margin: 0; padding: 0; }
-			#messages li { padding: 5px 10px; background: rgb(130, 224, 255);}
-			#messages li:nth-child(odd) { background: #eee; }
+			#messages li { padding: 0 10px; ;}
+			#messages li:nth-child(odd) {  }
 		</style>
 	</head>
 	<body>
 		<div id="title">
-			<img src="logo.png"/>
+			<img src="logo2.png"/>
 			<br/>
-			<p>Now with 100% more chat and errors!</p>
-			<p>Including SYNCHRONISED COLOURS AND RESIZABLE RENDER WINDOWS!</p>
+			<h1>IT'S A LOAD OF BALLS</h1>
+			<p>"9/9. I don't have a comment." - Kaisha</p>
+			<h2>NEW FEATURES</h2>
+			<p>SYNCHRONISED COLOURS!</p>
+			<p>DIFFERENT FONT!</p>
+			<p>RESIZABLE RENDER WINDOWS!</p>
+			<p>CHAT!</p>
+			<p>THIS TEXT!</p>
+			<p>MULTIPLAYER!</p>
+			<p>PERSISTENCE (mostly)!</p>
+			<p>ERRORS!</p>
 		</div>
 		<div id="chat">
 			<ul id="messages"></ul>

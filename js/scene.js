@@ -19,7 +19,7 @@ define(["require", "exports", "three", "jquery", "stats", "./player", "./world",
             // Create a scene, a camera, a light and a WebGL renderer with Three.JS
             this.scene = new THREE.Scene();
             //Setup camera
-            this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20000);
+            this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50000);
             this.camera.position.x = 0;
             this.camera.position.y = 50;
             this.camera.position.z = -70;
@@ -52,6 +52,8 @@ define(["require", "exports", "three", "jquery", "stats", "./player", "./world",
                 color: 0x7A43B6
             });
             this.scene.add(this.player.mesh);
+            this.socket.emit('movement', { 'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position });
+            this.socket.emit('player joined', this.player.guid);
             // Create the "world" : a 3D representation of the place we'll be putting our character in
             //this.world = new World({
             //	color: 0xF5F5F5
@@ -83,7 +85,7 @@ define(["require", "exports", "three", "jquery", "stats", "./player", "./world",
                     side: THREE.BackSide
                 }));
             }
-            var skyGeometry = new THREE.CubeGeometry(10000, 10000, 10000);
+            var skyGeometry = new THREE.CubeGeometry(50000, 50000, 50000);
             var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
             var skyBox = new THREE.Mesh(skyGeometry, skyMaterial);
             this.scene.add(skyBox);
@@ -94,6 +96,7 @@ define(["require", "exports", "three", "jquery", "stats", "./player", "./world",
             var player = this.player;
             var rPlayers = this.rPlayers;
             var scene = this.scene;
+            var socket = this.socket;
             this.socket.on('movement', function (rPlayer) {
                 if (rPlayer.guid != player.guid) {
                     if (!(rPlayer.guid in rPlayers)) {
@@ -107,6 +110,34 @@ define(["require", "exports", "three", "jquery", "stats", "./player", "./world",
                     }
                 }
             });
+            this.socket.on('player left', function (guid) {
+                for (var i in rPlayers) {
+                    var rPlayer = rPlayers[i];
+                    if (rPlayer.guid = guid) {
+                        rPlayers.splice(i, 1);
+                        scene.remove(rPlayer);
+                        //TODO: DO THIS IN CHAT.TS
+                        $('#messages').append($('<li class="player-left">').text(guid.substring(0, 5) + " left"));
+                        $('#messages').scrollTop($('#messages')[0].scrollHeight);
+                        break;
+                    }
+                }
+            });
+            this.socket.on('player joined', function (guid) {
+                //Player joined - emit your own position
+                //TODO: DO THIS IN CHAT.TS
+                socket.emit('movement', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position });
+                $('#messages').append($('<li class="player-joined">').text(guid.substring(0, 5) + " joined"));
+                $('#messages').scrollTop($('#messages')[0].scrollHeight);
+            });
+            this.socket.on('alive', function () {
+                socket.emit('alive', player.guid);
+            });
+            this.socket.on('closed', function () {
+                $('#messages').append($('<li class="player-left">').text("You have been disconnected"));
+                $('#messages').scrollTop($('#messages')[0].scrollHeight);
+            });
+            //socket events - MOVE THIS
             console.log("setting controls");
             // Within jQuery's methods, we won't be able to access "this"
             //user 3w= this.user,
@@ -204,13 +235,13 @@ define(["require", "exports", "three", "jquery", "stats", "./player", "./world",
             var player = this.player;
             if (controls.left || controls.up || controls.right || controls.down) {
                 if (controls.up)
-                    player.mesh.position.setZ(player.mesh.position.z + 1);
+                    player.mesh.position.setZ(player.mesh.position.z + 2);
                 if (controls.down)
-                    player.mesh.position.setZ(player.mesh.position.z - 1);
+                    player.mesh.position.setZ(player.mesh.position.z - 2);
                 if (controls.left)
-                    player.mesh.position.setX(player.mesh.position.x + 1);
+                    player.mesh.position.setX(player.mesh.position.x + 2);
                 if (controls.right)
-                    player.mesh.position.setX(player.mesh.position.x - 1);
+                    player.mesh.position.setX(player.mesh.position.x - 2);
                 this.socket.emit('movement', { 'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position });
             }
             // Run a new step of the user's motions
