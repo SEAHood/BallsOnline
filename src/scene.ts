@@ -72,10 +72,10 @@ class Scene {
 		this.light.position.set( -10, 20, 10 );
 		//this.light.shadowDarkness = 0.5;
 		//this.light.shadowCameraVisible = true;
-		this.scene.add(this.light);
+		//this.scene.add(this.light);
 		
 		this.light = new THREE.AmbientLight( 0x707070 ); // soft white light
-		this.scene.add(this.light);
+		//this.scene.add(this.light);
 		
 		//Setup renderer
 		this.renderer = new THREE.WebGLRenderer();
@@ -196,7 +196,9 @@ class Scene {
 						rPlayer.position.z
 					);
 					rPlayers[rPlayer.guid].__dirtyPosition = true;
-					rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+					if (typeof rPlayer.velocity != 'undefined') {
+						rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+					}	
 					
 					
 					//rPlayers[rPlayer.guid].__dirtyPosition = true;
@@ -206,7 +208,9 @@ class Scene {
 					//rPlayers[rPlayer.guid].__dirtyPosition = true;
 					rPlayers[rPlayer.guid].position.set(rPlayer.position.x, rPlayer.position.y, rPlayer.position.z);
 					rPlayers[rPlayer.guid].__dirtyPosition = true;
-					rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+					if (typeof rPlayer.velocity != 'undefined') {
+						rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+					}
 				}
 			}
 		});
@@ -244,7 +248,10 @@ class Scene {
 					rPlayer.position.z
 				);
 				rPlayers[rPlayer.guid].__dirtyPosition = true;
-				rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+				console.log(rPlayer.velocity);
+				if (typeof rPlayer.velocity != 'undefined') {
+					rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+				}
 				scene.add(rPlayers[rPlayer.guid]);
 				//console.log(rPlayers[rPlayer.guid]);
 				//Announce location
@@ -393,7 +400,7 @@ class Scene {
 		}
 		
 		if (player.mesh.position.y <= 0) {
-			controls.jumping = false;
+			//controls.jumping = false;
 		}
 		
 		
@@ -403,7 +410,11 @@ class Scene {
 			//velocity = player.mesh.getLinearVelocity();
 			if (controls.space && !controls.jumping) {
 				var pVelocity = player.mesh.getLinearVelocity();
+				if (typeof pVelocity === 'undefined') {
+					pVelocity = new THREE.Vector3(0, 0, 0);
+				}
 				pVelocity.setY(100);
+				
 				player.mesh.setLinearVelocity(pVelocity);
 				controls.jumping = true;
 				player.mesh.addEventListener('collision', function() {
@@ -430,7 +441,7 @@ class Scene {
 				//player.mesh.setLinearVelocity(new THREE.Vector3(-100, 0, 0));
 				//player.mesh.position.setX(player.mesh.position.x - 2);
 			
-			console.log(velocity);
+			//console.log(velocity);
 			//player.mesh.setLinearVelocity(velocity);
 			player.mesh.applyCentralImpulse(velocity);
 			//this.world.terrain.__dirtyPosition = true;

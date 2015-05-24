@@ -33,9 +33,9 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
             this.light.position.set(-10, 20, 10);
             //this.light.shadowDarkness = 0.5;
             //this.light.shadowCameraVisible = true;
-            this.scene.add(this.light);
+            //this.scene.add(this.light);
             this.light = new THREE.AmbientLight(0x707070); // soft white light
-            this.scene.add(this.light);
+            //this.scene.add(this.light);
             //Setup renderer
             this.renderer = new THREE.WebGLRenderer();
             //this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -117,7 +117,9 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
                         rPlayers[rPlayer.guid] = new PhysiJS.SphereMesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshLambertMaterial({ color: rPlayer.color }));
                         rPlayers[rPlayer.guid].position.set(rPlayer.position.x, rPlayer.position.y, rPlayer.position.z);
                         rPlayers[rPlayer.guid].__dirtyPosition = true;
-                        rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+                        if (typeof rPlayer.velocity != 'undefined') {
+                            rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+                        }
                         //rPlayers[rPlayer.guid].__dirtyPosition = true;
                         scene.add(rPlayers[rPlayer.guid]);
                     }
@@ -126,7 +128,9 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
                         //rPlayers[rPlayer.guid].__dirtyPosition = true;
                         rPlayers[rPlayer.guid].position.set(rPlayer.position.x, rPlayer.position.y, rPlayer.position.z);
                         rPlayers[rPlayer.guid].__dirtyPosition = true;
-                        rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+                        if (typeof rPlayer.velocity != 'undefined') {
+                            rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+                        }
                     }
                 }
             });
@@ -153,7 +157,10 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
                     rPlayers[rPlayer.guid] = new PhysiJS.SphereMesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshLambertMaterial({ color: rPlayer.color }));
                     rPlayers[rPlayer.guid].position.set(rPlayer.position.x, rPlayer.position.y, rPlayer.position.z);
                     rPlayers[rPlayer.guid].__dirtyPosition = true;
-                    rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+                    console.log(rPlayer.velocity);
+                    if (typeof rPlayer.velocity != 'undefined') {
+                        rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+                    }
                     scene.add(rPlayers[rPlayer.guid]);
                     //console.log(rPlayers[rPlayer.guid]);
                     //Announce location
@@ -283,7 +290,6 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
                 this.socket.emit('death', { 'guid': player.guid, 'color': player.color, 'ballsDropped': this.ballsDropped });
             }
             if (player.mesh.position.y <= 0) {
-                controls.jumping = false;
             }
             //var velocity = player.mesh.getLinearVelocity();
             if (controls.space || controls.left || controls.up || controls.right || controls.down) {
@@ -291,6 +297,9 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
                 //velocity = player.mesh.getLinearVelocity();
                 if (controls.space && !controls.jumping) {
                     var pVelocity = player.mesh.getLinearVelocity();
+                    if (typeof pVelocity === 'undefined') {
+                        pVelocity = new THREE.Vector3(0, 0, 0);
+                    }
                     pVelocity.setY(100);
                     player.mesh.setLinearVelocity(pVelocity);
                     controls.jumping = true;
@@ -316,7 +325,7 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
                     velocity.setX(-2000);
                 //player.mesh.setLinearVelocity(new THREE.Vector3(-100, 0, 0));
                 //player.mesh.position.setX(player.mesh.position.x - 2);
-                console.log(velocity);
+                //console.log(velocity);
                 //player.mesh.setLinearVelocity(velocity);
                 player.mesh.applyCentralImpulse(velocity);
             }
