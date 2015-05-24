@@ -18,7 +18,9 @@ class Player {
 		this.mesh = new THREE.Mesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: this.color }));
 		this.mesh.castShadow = true;
 		this.mesh.receiveShadow = true;
+		this.mesh.position.x = 0;
 		this.mesh.position.y = 10;
+		this.mesh.position.z = 0;
 	}
 	
 	generateGuid() {

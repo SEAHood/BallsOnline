@@ -52,8 +52,10 @@ define(["require", "exports", "three", "jquery", "stats", "./player", "./world",
                 color: 0x7A43B6
             });
             this.scene.add(this.player.mesh);
-            this.socket.emit('movement', { 'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position });
-            this.socket.emit('player joined', this.player.guid);
+            this.socket.emit('alive', { 'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position });
+            //this.socket.emit('movement', { 'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position });//{'guid': this.player.guid, 'color': this.player.color, 'position': 
+            //this.socket.emit('movement', {'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position});
+            //this.socket.emit('player joined', this.player.guid);
             // Create the "world" : a 3D representation of the place we'll be putting our character in
             //this.world = new World({
             //	color: 0xF5F5F5
@@ -71,6 +73,7 @@ define(["require", "exports", "three", "jquery", "stats", "./player", "./world",
             //var stats = new Stats();
             //document.body.appendChild(Stats.domElement);	
             console.log("ending scene init");
+            console.log("EMITTING: " + this.player.guid);
         }
         Scene.prototype.createSkybox = function () {
             var urlPrefix = "skybox/stormydays_";
@@ -97,23 +100,32 @@ define(["require", "exports", "three", "jquery", "stats", "./player", "./world",
             var rPlayers = this.rPlayers;
             var scene = this.scene;
             var socket = this.socket;
+            //TODO SORT THE FUCKIGN MOVEMENT OUT LOL
             this.socket.on('movement', function (rPlayer) {
                 if (rPlayer.guid != player.guid) {
+                    console.log("detected other player movement");
+                    //New player found - from position announce via other clients - perhaps refactor this into another call (fine for now)
                     if (!(rPlayer.guid in rPlayers)) {
                         //var color = getRandomColor();	
+                        console.log("NEW PLAYER FOUND");
                         rPlayers[rPlayer.guid] = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshLambertMaterial({ color: rPlayer.color }));
                         rPlayers[rPlayer.guid].position.set(rPlayer.position.x, rPlayer.position.y, rPlayer.position.z);
                         scene.add(rPlayers[rPlayer.guid]);
                     }
                     else {
+                        //console.log(rPlayer);
                         rPlayers[rPlayer.guid].position.set(rPlayer.position.x, rPlayer.position.y, rPlayer.position.z);
                     }
                 }
             });
             this.socket.on('player left', function (guid) {
+                console.log("Player left: " + guid);
                 for (var i in rPlayers) {
                     var rPlayer = rPlayers[i];
-                    if (rPlayer.guid = guid) {
+                    console.log(rPlayer.guid); //undefined? ?!?!/!/1/11/??
+                    console.log(i);
+                    if (i == guid) {
+                        console.log("Player found in rPlayers");
                         rPlayers.splice(i, 1);
                         scene.remove(rPlayer);
                         //TODO: DO THIS IN CHAT.TS
@@ -123,20 +135,32 @@ define(["require", "exports", "three", "jquery", "stats", "./player", "./world",
                     }
                 }
             });
-            this.socket.on('player joined', function (guid) {
+            this.socket.on('player joined', function (rPlayer) {
                 //Player joined - emit your own position
                 //TODO: DO THIS IN CHAT.TS
-                socket.emit('movement', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position });
-                $('#messages').append($('<li class="player-joined">').text(guid.substring(0, 5) + " joined"));
+                console.log("PLAYER JOINED");
+                if (rPlayer.guid != player.guid) {
+                    rPlayers[rPlayer.guid] = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshLambertMaterial({ color: rPlayer.color }));
+                    rPlayers[rPlayer.guid].position.set(rPlayer.position.x, rPlayer.position.y, rPlayer.position.z);
+                    scene.add(rPlayers[rPlayer.guid]);
+                    //console.log(rPlayers[rPlayer.guid]);
+                    //Announce location
+                    socket.emit('movement', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position });
+                }
+                $('#messages').append($('<li class="player-joined">').text(rPlayer.guid.substring(0, 5) + " joined"));
                 $('#messages').scrollTop($('#messages')[0].scrollHeight);
             });
             this.socket.on('alive', function () {
-                socket.emit('alive', player.guid);
+                console.log(player.guid);
+                socket.emit('alive', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position });
             });
             this.socket.on('closed', function () {
                 $('#messages').append($('<li class="player-left">').text("You have been disconnected"));
                 $('#messages').scrollTop($('#messages')[0].scrollHeight);
             });
+            setInterval(function () {
+                socket.emit('alive', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position });
+            }, 5000);
             //socket events - MOVE THIS
             console.log("setting controls");
             // Within jQuery's methods, we won't be able to access "this"
@@ -242,7 +266,7 @@ define(["require", "exports", "three", "jquery", "stats", "./player", "./world",
                     player.mesh.position.setX(player.mesh.position.x + 2);
                 if (controls.right)
                     player.mesh.position.setX(player.mesh.position.x - 2);
-                this.socket.emit('movement', { 'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position });
+                this.socket.emit('movement', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position }); //{'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position});
             }
             // Run a new step of the user's motions
             //this.user.motion();
