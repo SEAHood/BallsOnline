@@ -1,10 +1,13 @@
 ///<reference path="../typings/threejs/three.d.ts"/>
 ///<reference path="../typings/jquery/jquery.d.ts"/>
 ///<reference path="../typings/stats/stats.d.ts"/>
+///<reference path="../typings/physijs/physijs.d.ts"/>
 
 ///<reference path="../typings/socket.io/socket.io.d.ts"/>
 
-import THREE = require("three");
+//CAN PROBABLY REMOVE THREE - DECLARED IN GAME.TS
+
+//import THREE = require("three");
 import jQuery = require("jquery");
 //import OrbitControls = require("three-orbitcontrols");
 import Stats = require("stats");
@@ -13,9 +16,11 @@ import World = require("./world");
 import Chat = require("./chat");
 import io = require("socket.io");
 
+import PhysiJS = require("physijs");
+
 // import Test = BallsOnline.Test;
 class Scene {
-	scene: THREE.Scene;
+	scene: PhysiJS.Scene;
 	camera: THREE.PerspectiveCamera;
 	//cameraControls: THREE.OrbitControls;
 	light: THREE.Light;
@@ -27,8 +32,11 @@ class Scene {
 	rPlayers: any[];
 	socket: any;
 	chat: Chat;
+	ballsDropped: number;
 	
 	controls = {
+		jumping: false,
+		space: false,
 		left: false,
 		up: false,
 		right: false,
@@ -47,8 +55,8 @@ class Scene {
 	
 		this.container = jQuery('#test');
 		// Create a scene, a camera, a light and a WebGL renderer with Three.JS
-		this.scene = new THREE.Scene();
-		
+		this.scene = new PhysiJS.Scene({fixedTimeStep: 1 / 60 });
+		this.scene.setGravity(new THREE.Vector3(0, -150, 0))
 		//Setup camera
 		this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50000);
 		this.camera.position.x = 0;
@@ -80,7 +88,8 @@ class Scene {
 		// Define the container for the renderer
 		//this.container = $('body');
 		this.world = new World();
-		this.scene.add(this.world.terrain);
+		this.world.addToScene(this.scene);
+		//this.scene.add(this.world.terrain);
 		
 		
 		//this.cameraControls = new THREE.OrbitControls(this.camera, this.renderer.domElement); 
@@ -97,6 +106,7 @@ class Scene {
 		});
 		this.scene.add(this.player.mesh);
 		this.socket.emit('alive', {'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position});
+		this.ballsDropped = 0;
 		//this.socket.emit('movement', { 'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position });//{'guid': this.player.guid, 'color': this.player.color, 'position': 
 		//this.socket.emit('movement', {'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position});
 		//this.socket.emit('player joined', this.player.guid);
@@ -177,17 +187,26 @@ class Scene {
 				if (!(rPlayer.guid in rPlayers)) {
 					//var color = getRandomColor();	
 					//console.log("NEW PLAYER FOUND");
-					rPlayers[rPlayer.guid] = new THREE.Mesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: rPlayer.color }));
+					rPlayers[rPlayer.guid] = new PhysiJS.SphereMesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: rPlayer.color }));
+					
 					rPlayers[rPlayer.guid].position.set
 					(
 						rPlayer.position.x,
 						rPlayer.position.y,
 						rPlayer.position.z
 					);
+					rPlayers[rPlayer.guid].__dirtyPosition = true;
+					rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
+					
+					
+					//rPlayers[rPlayer.guid].__dirtyPosition = true;
 					scene.add(rPlayers[rPlayer.guid]);
 				} else {
 					//console.log(rPlayer);
+					//rPlayers[rPlayer.guid].__dirtyPosition = true;
 					rPlayers[rPlayer.guid].position.set(rPlayer.position.x, rPlayer.position.y, rPlayer.position.z);
+					rPlayers[rPlayer.guid].__dirtyPosition = true;
+					rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
 				}
 			}
 		});
@@ -217,13 +236,15 @@ class Scene {
 			//console.log("PLAYER JOINED");
 			
 			if (rPlayer.guid != player.guid) { //Dont add yourself
-				rPlayers[rPlayer.guid] = new THREE.Mesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: rPlayer.color }));
+				rPlayers[rPlayer.guid] = new PhysiJS.SphereMesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: rPlayer.color }));
 				rPlayers[rPlayer.guid].position.set
 				(
 					rPlayer.position.x,
 					rPlayer.position.y,
 					rPlayer.position.z
 				);
+				rPlayers[rPlayer.guid].__dirtyPosition = true;
+				rPlayers[rPlayer.guid].setLinearVelocity(rPlayer.velocity);
 				scene.add(rPlayers[rPlayer.guid]);
 				//console.log(rPlayers[rPlayer.guid]);
 				//Announce location
@@ -247,6 +268,7 @@ class Scene {
 		
 		
 		
+		
 		setInterval(function() {
 			socket.emit('alive', {'guid': player.guid, 'color': player.color, 'position': player.mesh.position});
 		}, 5000);
@@ -264,39 +286,47 @@ class Scene {
 		var basicScene = this;
 		
 		// When the user presses a key 
-		jQuery(document).keydown(function (e) {
-			var prevent = true;
-			// Update the state of the attached control to "true"
-			switch (e.keyCode) {
-				case 37:
-					controls.left = true;
-					break;
-				case 38:
-					controls.up = true;
-					break;
-				case 39:
-					controls.right = true;
-					break;
-				case 40:
-					controls.down = true;
-					break;
-				default:
-					prevent = false;
-			}
-			// Avoid the browser to react unexpectedly
-			if (prevent) {
-				e.preventDefault();
-			} else {
-				return;
+		$(document).keydown(function (e) {
+			if (!$(e.target).is('input')) {
+				var prevent = true;
+				// Update the state of the attached control to "true"
+				switch (e.keyCode) {
+					case 32:
+						controls.space = true;
+						break;
+					case 37:
+						controls.left = true;
+						break;
+					case 38:
+						controls.up = true;
+						break;
+					case 39:
+						controls.right = true;
+						break;
+					case 40:
+						controls.down = true;
+						break;
+					default:
+						prevent = false;
+				}
+				// Avoid the browser to react unexpectedly
+				if (prevent) {
+					e.preventDefault();
+				} else {
+					return;
+				}
 			}
 			// Update the character's direction
 			//user.setDirection(controls);
 		});
 		// When the user releases a key
-		jQuery(document).keyup(function (e) {
+		$(document).keyup(function (e) {
 			var prevent = true;
 			// Update the state of the attached control to "false"
 			switch (e.keyCode) {
+				case 32:
+					controls.space = false;
+					break;
 				case 37:
 					controls.left = false;
 					break;
@@ -356,25 +386,67 @@ class Scene {
 		var player = this.player;
 		
 		
-		
-		if (controls.left || controls.up || controls.right || controls.down) {	
-			if (controls.up)
-				player.mesh.position.setZ(player.mesh.position.z + 2);
-			if (controls.down)
-				player.mesh.position.setZ(player.mesh.position.z - 2);
-			if (controls.left)
-				player.mesh.position.setX(player.mesh.position.x + 2);
-			if (controls.right)
-				player.mesh.position.setX(player.mesh.position.x - 2);
-							
-			this.socket.emit('movement', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position });//{'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position});
+		if (player.mesh.position.y < -100) {
+			player.reset();
+			this.ballsDropped++;
+			this.socket.emit('death', { 'guid': player.guid, 'color': player.color, 'ballsDropped': this.ballsDropped });
 		}
+		
+		if (player.mesh.position.y <= 0) {
+			controls.jumping = false;
+		}
+		
+		
+		//var velocity = player.mesh.getLinearVelocity();
+		if (controls.space || controls.left || controls.up || controls.right || controls.down) {	
+			var velocity = new THREE.Vector3(0, 0, 0);
+			//velocity = player.mesh.getLinearVelocity();
+			if (controls.space && !controls.jumping) {
+				var pVelocity = player.mesh.getLinearVelocity();
+				pVelocity.setY(100);
+				player.mesh.setLinearVelocity(pVelocity);
+				controls.jumping = true;
+				player.mesh.addEventListener('collision', function() {
+					controls.jumping = false;
+					// `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
+				});
+			}
+			
+			var velocity = new THREE.Vector3();
+			if (controls.up)
+				velocity.setZ(2000);
+				//player.mesh.setLinearVelocity(new THREE.Vector3(0, 0, 100));
+				//player.mesh.position.setZ(player.mesh.position.z + 2);
+			if (controls.down)
+				velocity.setZ(-2000);
+				//player.mesh.setLinearVelocity(new THREE.Vector3(0, 0, -100));
+				//player.mesh.position.setZ(player.mesh.position.z - 2);
+			if (controls.left)
+				velocity.setX(2000);
+				//player.mesh.setLinearVelocity(new THREE.Vector3(100, 0, 0));
+				//player.mesh.position.setX(player.mesh.position.x + 2);
+			if (controls.right)
+				velocity.setX(-2000);
+				//player.mesh.setLinearVelocity(new THREE.Vector3(-100, 0, 0));
+				//player.mesh.position.setX(player.mesh.position.x - 2);
+			
+			console.log(velocity);
+			//player.mesh.setLinearVelocity(velocity);
+			player.mesh.applyCentralImpulse(velocity);
+			//this.world.terrain.__dirtyPosition = true;
+
+			//this.socket.emit('movement', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position, 'velocity': player.mesh.getLinearVelocity() });
+		}
+		
+			this.socket.emit('movement', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position, 'velocity': player.mesh.getLinearVelocity() });
+		
 		// Run a new step of the user's motions
 		//this.user.motion();
 		// Set the camera to look at our user's character
 		//this.setFocus(this.world.terrain);
 		this.setFocus(this.player.mesh);
 		// And draw !
+		this.scene.simulate();
 		this.renderer.render(this.scene, this.camera);
 	}
 }

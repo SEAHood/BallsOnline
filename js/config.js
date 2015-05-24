@@ -23,7 +23,14 @@ requirejs.config({
         },
         'socket.io': {
             exports: 'Socket'
+        },
+        'physijs': {
+            exports: 'Physijs'
         }
-    }
+    },
+    waitSeconds: 200
 });
-require(["game"]);
+//Include three from the start
+require(["three"], function (THREE) {
+    require(["game"]);
+});

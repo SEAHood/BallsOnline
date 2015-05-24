@@ -47,6 +47,10 @@ io.on('connection', function(socket){
 		console.log("Test received");
     });
 	
+	socket.on('death', function(data) {
+		io.emit('death', data);
+	});
+	
 	var timeout;
 	socket.on('disconnect', function() {
 		for (guid in allPlayers) {
@@ -86,10 +90,10 @@ io.on('connection', function(socket){
 		}		
 		
 		timeout = setTimeout(function() { 
-			logMessage('TIMEOUT', guid);
 			for (guid in allPlayers) {
 				var s = allPlayers[guid];
 				if (s == socket) {
+					logMessage('TIMEOUT', guid);
 					io.emit('player left', guid);
 					
 					delete allPlayers[guid];

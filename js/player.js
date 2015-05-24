@@ -1,15 +1,19 @@
-define(["require", "exports"], function (require, exports) {
+define(["require", "exports", "physijs"], function (require, exports, PhysiJS) {
     var Player = (function () {
         function Player(color) {
             console.log("creating player");
             this.guid = this.generateGuid();
             this.color = this.generateColor();
             this.username = '1234';
-            this.mesh = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshLambertMaterial({ color: this.color }));
+            var friction = 1; // high friction
+            var restitution = 1; // low restitution
+            var material = PhysiJS.createMaterial(new THREE.MeshLambertMaterial({ color: this.color }), friction, restitution);
+            //this.mesh = new THREE.Mesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: this.color }));
+            this.mesh = new PhysiJS.SphereMesh(new THREE.SphereGeometry(5, 32, 32), material);
             this.mesh.castShadow = true;
             this.mesh.receiveShadow = true;
             this.mesh.position.x = 0;
-            this.mesh.position.y = 10;
+            this.mesh.position.y = 50;
             this.mesh.position.z = 0;
         }
         Player.prototype.generateGuid = function () {
@@ -27,6 +31,13 @@ define(["require", "exports"], function (require, exports) {
                 color += letters[Math.floor(Math.random() * 16)];
             }
             return color;
+        };
+        Player.prototype.reset = function () {
+            this.mesh.setLinearVelocity(new THREE.Vector3(0, 0, 0));
+            this.mesh.setAngularVelocity(new THREE.Vector3(0, 0, 0));
+            //this.mesh.set
+            this.mesh.position.set(0, 50, 0);
+            this.mesh.__dirtyPosition = true;
         };
         return Player;
     })();

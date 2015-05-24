@@ -1,11 +1,13 @@
 ///<reference path="../typings/threejs/three.d.ts"/>
-import three = require("three");
+///<reference path="../typings/physijs/physijs.d.ts"/>
+//import three = require("three");
+import PhysiJS = require("physijs");
 
 class Player {
 	guid: String;
 	color: any; //This should be a number 
 	username: String;
-	mesh: THREE.Mesh;
+	mesh: PhysiJS.Mesh;
 	controls: any;
 	
 	constructor(color: Object) { //find out what colour is	
@@ -14,12 +16,20 @@ class Player {
 		this.guid = this.generateGuid();
 		this.color = this.generateColor();
 		this.username = '1234';
+		var friction = 1; // high friction
+		var restitution = 1; // low restitution
+		var material = PhysiJS.createMaterial(
+			new THREE.MeshLambertMaterial({ color: this.color }),
+			friction,
+			restitution
+		);
 		
-		this.mesh = new THREE.Mesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: this.color }));
+		//this.mesh = new THREE.Mesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: this.color }));
+		this.mesh = new PhysiJS.SphereMesh(new THREE.SphereGeometry(5,32,32), material);
 		this.mesh.castShadow = true;
 		this.mesh.receiveShadow = true;
 		this.mesh.position.x = 0;
-		this.mesh.position.y = 10;
+		this.mesh.position.y = 50;
 		this.mesh.position.z = 0;
 	}
 	
@@ -39,6 +49,14 @@ class Player {
 			color += letters[Math.floor(Math.random() * 16)];
 		}
 		return color;
+	}
+	
+	reset() {
+		this.mesh.setLinearVelocity(new THREE.Vector3(0, 0, 0));
+		this.mesh.setAngularVelocity(new THREE.Vector3(0, 0, 0));
+		//this.mesh.set
+		this.mesh.position.set(0, 50, 0);
+		this.mesh.__dirtyPosition = true;	
 	}
 }
 
