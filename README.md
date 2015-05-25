@@ -10,13 +10,15 @@
 
 
 ####To Do:
+- Add fruit
+- Add cactii
 - Class architecture and flow need to be ironed out
+- Create large terrain to navigate
+- Usernames - move away from guid as much as possible (?)
 - ~~Persistence model needs a bit of an overhaul~~
 - ~~Integrate with Physijs (http://chandlerprall.github.io/Physijs/)~~
   - ~~Collision detection (Physijs)~~
   - ~~Gravity (Physijs)~~
   - ~~Friction (Physijs)~~
 - ~~Add jumping~~
-- Create large terrain to navigate
-- Usernames - move away from guid as much as possible (?)
 - ~~Implement TypeScript version for modularity~~
