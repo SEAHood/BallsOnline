@@ -24,13 +24,20 @@ class Player {
 			restitution
 		);
 		
+		//var mat = new THREE.MeshLambertMaterial({ color: this.color });
+		
 		//this.mesh = new THREE.Mesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: this.color }));
 		this.mesh = new PhysiJS.SphereMesh(new THREE.SphereGeometry(5,32,32), material);
 		this.mesh.castShadow = true;
 		this.mesh.receiveShadow = true;
 		this.mesh.position.x = 0;
-		this.mesh.position.y = 50;
+		this.mesh.position.y = 150;
 		this.mesh.position.z = 0;
+		// Enable CCD if the object moves more than 1 meter in one simulation frame
+		this.mesh.setCcdMotionThreshold(5);
+
+		// Set the radius of the embedded sphere such that it is smaller than the object
+		this.mesh.setCcdSweptSphereRadius(0.2);
 	}
 	
 	generateGuid() {
@@ -55,7 +62,7 @@ class Player {
 		this.mesh.setLinearVelocity(new THREE.Vector3(0, 0, 0));
 		this.mesh.setAngularVelocity(new THREE.Vector3(0, 0, 0));
 		//this.mesh.set
-		this.mesh.position.set(0, 50, 0);
+		this.mesh.position.set(0, 150, 0);
 		this.mesh.__dirtyPosition = true;	
 	}
 }

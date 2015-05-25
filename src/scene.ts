@@ -84,11 +84,17 @@ class Scene {
 		this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
 		document.body.appendChild(this.renderer.domElement);
 		
+		// Create the user's character
+		this.player = new Player({
+			color: 0x7A43B6
+		});
+		
+		//this.scene.add(this.player.mesh);
 		
 		// Define the container for the renderer
 		//this.container = $('body');
-		this.world = new World();
-		this.world.addToScene(this.scene);
+		this.world = new World(this.scene, this.player.mesh);
+		//this.world.addToScene(this.scene);
 		//this.scene.add(this.world.terrain);
 		
 		
@@ -100,11 +106,8 @@ class Scene {
 		document.body.appendChild(this.stats.domElement);
 		
 		
-		// Create the user's character
-		this.player = new Player({
-			color: 0x7A43B6
-		});
-		this.scene.add(this.player.mesh);
+		
+		
 		this.socket.emit('alive', {'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position});
 		this.ballsDropped = 0;
 		//this.socket.emit('movement', { 'guid': this.player.guid, 'color': this.player.color, 'position': this.player.mesh.position });//{'guid': this.player.guid, 'color': this.player.color, 'position': 
@@ -141,8 +144,10 @@ class Scene {
 		
 		//console.log("EMITTING: " + this.player.guid);
 		
-		
 	}
+	
+	addPlayer() {
+	}	
 	
 	createSkybox() {		
 		var urlPrefix = "skybox/stormydays_";
@@ -188,7 +193,8 @@ class Scene {
 					//var color = getRandomColor();	
 					//console.log("NEW PLAYER FOUND");
 					rPlayers[rPlayer.guid] = new PhysiJS.SphereMesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: rPlayer.color }));
-					
+					rPlayers[rPlayer.guid].castShadow = true;
+					rPlayers[rPlayer.guid].receiveShadow = true;
 					rPlayers[rPlayer.guid].position.set
 					(
 						rPlayer.position.x,
@@ -241,6 +247,8 @@ class Scene {
 			
 			if (rPlayer.guid != player.guid) { //Dont add yourself
 				rPlayers[rPlayer.guid] = new PhysiJS.SphereMesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: rPlayer.color }));
+				rPlayers[rPlayer.guid].castShadow = true;
+				rPlayers[rPlayer.guid].receiveShadow = true;
 				rPlayers[rPlayer.guid].position.set
 				(
 					rPlayer.position.x,
@@ -302,15 +310,19 @@ class Scene {
 						controls.space = true;
 						break;
 					case 37:
+					case 65:
 						controls.left = true;
 						break;
 					case 38:
+					case 87:
 						controls.up = true;
 						break;
 					case 39:
+					case 68:
 						controls.right = true;
 						break;
 					case 40:
+					case 83:
 						controls.down = true;
 						break;
 					default:
@@ -335,15 +347,19 @@ class Scene {
 					controls.space = false;
 					break;
 				case 37:
+				case 65:
 					controls.left = false;
 					break;
 				case 38:
+				case 87:
 					controls.up = false;
 					break;
 				case 39:
+				case 68:
 					controls.right = false;
 					break;
 				case 40:
+				case 83:
 					controls.down = false;
 					break;
 				default:
