@@ -10,8 +10,8 @@
 
 
 ####To Do:
-- Add fruit
-- Add cactii
+- Add fruit (slippable bananananas)
+- Add cactuses's
 - Class architecture and flow need to be ironed out
 - Create large terrain to navigate
 - Usernames - move away from guid as much as possible (?)
