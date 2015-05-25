@@ -5,12 +5,14 @@ var io = require('socket.io')(http);
 
 app.use(express.static(__dirname + '/js'));
 app.use(express.static(__dirname + '/img'));
+app.use(express.static(__dirname + '/audio'));
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 });
 
 var allPlayers = [];
+var playerNicknames = [];
 
 function logMessage(type, content) {
 		var dt = new Date();
@@ -38,7 +40,17 @@ io.on('connection', function(socket){
 		io.emit('movement', player);
 	});
 		
-	socket.on('chat message', function(data){
+	socket.on('chat message', function(data){		
+		//if (data.guid in playerNicknames) {
+		//	data.guid.nick = playerNicknames[data.guid];
+		//}
+		console.log(playerNicknames[data.guid]);
+		data.nick = playerNicknames[data.guid];
+		console.log(data.guid.nick);
+		
+		
+		data.msg = data.msg.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	
 		logMessage('MESSAGE', data.guid.substring(0, 5) + ": " + data.msg);
 		io.emit('chat message', data);
     });
@@ -50,6 +62,15 @@ io.on('connection', function(socket){
 	socket.on('death', function(data) {
 		io.emit('death', data);
 	});
+	
+	socket.on('nick change', function(guid, nick) {
+		var previousName = playerNicknames[guid] || guid.substring(0, 5);
+		
+		nick = nick.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+		playerNicknames[guid] = nick;
+		io.emit('info', previousName + " has changed their name to " + nick);
+	});
+		
 	
 	var timeout;
 	socket.on('disconnect', function() {

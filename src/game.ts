@@ -1,6 +1,12 @@
 import Scene = require("./scene");
 import Chat = require("./chat");
 
+var loadingManager = new THREE.LoadingManager(function() { console.log("done"); }, function(item, loaded, total) { console.log(total); }, function(){});
+// THREE.LoadingManager.onProgress = function ( item, loaded, total ) {
+    // console.log( item, loaded, total );
+// };
+
+
 console.log("invoking scene");
 var scene = new Scene();
 
