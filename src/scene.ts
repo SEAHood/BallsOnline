@@ -5,11 +5,12 @@
 
 ///<reference path="../typings/socket.io/socket.io.d.ts"/>
 
+///<reference path="../typings/threejs/three-orbitcontrols.d.ts"/>
+
 //CAN PROBABLY REMOVE THREE - DECLARED IN GAME.TS
 
 //import THREE = require("three");
 import jQuery = require("jquery");
-//import OrbitControls = require("three-orbitcontrols");
 import Stats = require("stats");
 import Player = require("./player");
 import World = require("./world");
@@ -17,12 +18,13 @@ import Chat = require("./chat");
 import io = require("socket.io");
 
 import PhysiJS = require("physijs");
+//import OrbitControls = require("orbitcontrols");
 
 // import Test = BallsOnline.Test;
 class Scene {
 	scene: PhysiJS.Scene;
 	camera: THREE.PerspectiveCamera;
-	//cameraControls: THREE.OrbitControls;
+	cameraControls: THREE.OrbitControls;
 	light: THREE.Light;
 	renderer: THREE.WebGLRenderer;
 	container: any;
@@ -58,11 +60,11 @@ class Scene {
 		this.scene = new PhysiJS.Scene({fixedTimeStep: 1 / 60 });
 		this.scene.setGravity(new THREE.Vector3(0, -150, 0))
 		//Setup camera
-		this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 50000);
+		this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 150000);
 		this.camera.position.x = 0;
 		this.camera.position.y = 50;
 		this.camera.position.z = -70;		
-		this.scene.add(this.camera);
+		//this.scene.add(this.camera);
 		
 		
 		
@@ -98,9 +100,6 @@ class Scene {
 		//this.scene.add(this.world.terrain);
 		
 		
-		//this.cameraControls = new THREE.OrbitControls(this.camera, this.renderer.domElement); 
-		//this.cameraControls.noPan = true;
-		//this.cameraControls.addEventListener('change', this.frame);
 		
 		this.stats = new Stats();
 		document.body.appendChild(this.stats.domElement);
@@ -138,6 +137,11 @@ class Scene {
 		//document.body.appendChild(Stats.domElement);	
 		
 		
+		this.cameraControls = new THREE.OrbitControls(this.camera); 
+		this.cameraControls.noPan = true;
+		this.cameraControls.addEventListener('change', function() {
+			this.frame();			
+		}.bind(this));
 		
 		
 		console.log("ending scene init");
@@ -165,7 +169,7 @@ class Scene {
 			}));
 		}
 		
-		 var skyGeometry = new THREE.CubeGeometry( 50000, 50000, 50000 );
+		 var skyGeometry = new THREE.CubeGeometry( 100000, 100000, 100000 );
 		 var skyMaterial = new THREE.MeshFaceMaterial( materialArray );
 		 var skyBox = new THREE.Mesh( skyGeometry, skyMaterial );
 		 this.scene.add(skyBox);
@@ -224,7 +228,10 @@ class Scene {
 		
 		
 		this.socket.on('player left', function(guid) {
-		
+			if (guid == player.guid) {
+				window.location.replace("/disconnect");				
+			}
+			
 			//console.log("Player left: " + guid);
 			for (var i in rPlayers) {
 				var rPlayer = rPlayers[i];
@@ -398,15 +405,23 @@ class Scene {
 	// Updating the camera to follow and look at a given Object3D / Mesh
 	setFocus(object: THREE.Mesh) {
 		this.camera.position.set(object.position.x, object.position.y + 128, object.position.z - 256);
+		//this.camera.position.setY(object.position.y + 128);
 		this.camera.lookAt(object.position);
+	}
+	
+	test() {
+	console.log("TEST");
+		console.log(this);
 	}
 	
 	// Update and draw the scene
 	frame() {
+		//console.log(this);
 		this.stats.update();
-		
+		//console.log(this);
 		var controls = this.controls;
 		var player = this.player;
+		var camera = this.camera;
 		
 		
 		if (player.mesh.position.y < -100) {
@@ -439,38 +454,87 @@ class Scene {
 				});
 			}
 			
-			var velocity = new THREE.Vector3();
 			if (controls.up)
-				velocity.setZ(2000);
+				velocity.setZ(5000);
 				//player.mesh.setLinearVelocity(new THREE.Vector3(0, 0, 100));
 				//player.mesh.position.setZ(player.mesh.position.z + 2);
 			if (controls.down)
-				velocity.setZ(-2000);
+				velocity.setZ(-5000);
 				//player.mesh.setLinearVelocity(new THREE.Vector3(0, 0, -100));
 				//player.mesh.position.setZ(player.mesh.position.z - 2);
 			if (controls.left)
-				velocity.setX(2000);
+				velocity.setX(5000);
 				//player.mesh.setLinearVelocity(new THREE.Vector3(100, 0, 0));
 				//player.mesh.position.setX(player.mesh.position.x + 2);
 			if (controls.right)
-				velocity.setX(-2000);
+				velocity.setX(-5000);
 				//player.mesh.setLinearVelocity(new THREE.Vector3(-100, 0, 0));
 				//player.mesh.position.setX(player.mesh.position.x - 2);
 			
 			//console.log(velocity);
 			//player.mesh.setLinearVelocity(velocity);
 			player.mesh.applyCentralImpulse(velocity);
+			
+			
+			
 			//this.world.terrain.__dirtyPosition = true;
 
 			//this.socket.emit('movement', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position, 'velocity': player.mesh.getLinearVelocity() });
 		}
 		
-			this.socket.emit('movement', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position, 'velocity': player.mesh.getLinearVelocity() });
+		var speedLimit = 300;
+		var pVelocity = player.mesh.getLinearVelocity();
+		if (pVelocity.x > speedLimit) {
+			player.mesh.setLinearVelocity(new THREE.Vector3(speedLimit, pVelocity.y, pVelocity.z));
+		}
+		pVelocity = player.mesh.getLinearVelocity();
+		if (pVelocity.y > speedLimit) {
+			player.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, speedLimit, pVelocity.z));
+		}		
+		pVelocity = player.mesh.getLinearVelocity();		
+		if (pVelocity.z > speedLimit) {
+			player.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, pVelocity.y, speedLimit));
+		}
 		
+		pVelocity = player.mesh.getLinearVelocity();
+		if (pVelocity.x < -speedLimit) {
+			player.mesh.setLinearVelocity(new THREE.Vector3(-speedLimit, pVelocity.y, pVelocity.z));
+		}
+		pVelocity = player.mesh.getLinearVelocity();
+		if (pVelocity.y < -speedLimit) {
+			player.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, -speedLimit, pVelocity.z));
+		}		
+		pVelocity = player.mesh.getLinearVelocity();		
+		if (pVelocity.z < -speedLimit) {
+			player.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, pVelocity.y, -speedLimit));
+		}
+		
+		this.socket.emit('movement', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position, 'velocity': player.mesh.getLinearVelocity() });
+		
+		var playerVelocity = player.mesh.getLinearVelocity();
+		$('#velocity-x').text(Math.round(playerVelocity.x) + " (x)");
+		$('#velocity-y').text(Math.round(playerVelocity.y) + " (y)");
+		$('#velocity-z').text(Math.round(playerVelocity.z) + " (z)");
+		
+		$('#position-x').text(Math.round(player.mesh.position.x) + " (xpos)");
+		$('#position-y').text(Math.round(player.mesh.position.y) + " (ypos)");
+		$('#position-z').text(Math.round(player.mesh.position.z) + " (zpos)");
 		// Run a new step of the user's motions
 		//this.user.motion();
+		//this.user.motion();
+		
+		
+		//Make camera avoid terrain
+		// var ray = new THREE.Raycaster(camera.position, new THREE.Vector3(0, 1, 0), 5, 5);
+		// if (this.world.intersects(ray)) {
+		// console.log("YES");
+			// camera.position.setY(camera.position.y + 1);
+		// }
+		
+		
 		// Set the camera to look at our user's character
 		//this.setFocus(this.world.terrain);
+		// this.cameraControls.update();
 		this.setFocus(this.player.mesh);
 		// And draw !
 		this.scene.simulate();

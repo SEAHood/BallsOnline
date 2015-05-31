@@ -54,20 +54,26 @@ define(["require", "exports", "physijs"], function (require, exports, PhysiJS) {
                 console.log("IMAGE LOADED");
                 var data = world.getHeightData(img, 10);
                 var ground_material;
-                ground_material = Physijs.createMaterial(new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('threejs_heightmap_texture_desert_secrets.jpg'), wireframe: false }), .8, .4 // low restitution
+                ground_material = Physijs.createMaterial(
+                //new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture( 'maze_texture.bmp' ), wireframe: false} ),
+                new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('threejs_heightmap_texture_desert_secrets.jpg'), wireframe: false }), .8, .4 // low restitution
                 );
                 ground_material.map.wrapS = ground_material.map.wrapT = THREE.RepeatWrapping;
                 ground_material.map.repeat.set(1, 1);
-                var ground_geometry = new THREE.PlaneGeometry(10000, 10000, 249, 249);
+                //var ground_geometry = new THREE.PlaneGeometry( 10000, 10000, 255, 255 );
+                var ground_geometry = new THREE.PlaneGeometry(25000, 25000, 249, 249);
                 console.log(ground_geometry.vertices.length);
                 console.log(data.length);
                 for (var i = 0, l = ground_geometry.vertices.length; i < l; i++) {
                     var terrainValue = data[i] / 255;
-                    ground_geometry.vertices[i].z = ground_geometry.vertices[i].z + terrainValue * 1000;
+                    ground_geometry.vertices[i].z = ground_geometry.vertices[i].z + terrainValue * 17500;
                 }
-                //ground_geometry.computeFaceNormals();
-                //ground_geometry.computeVertexNormals();
-                var ground = new PhysiJS.HeightfieldMesh(ground_geometry, ground_material, 0, 249, 249);
+                ground_geometry.computeFaceNormals();
+                ground_geometry.computeVertexNormals();
+                var ground = new PhysiJS.HeightfieldMesh(ground_geometry, ground_material, 0, 
+                //255,
+                //255
+                249, 249);
                 ground.rotation.x = Math.PI / -2;
                 ground.receiveShadow = true;
                 //scene.add( ground );
@@ -78,6 +84,7 @@ define(["require", "exports", "physijs"], function (require, exports, PhysiJS) {
                 world.addToScene();
                 world.scene.add(player);
             };
+            //img.src = "maze.bmp";
             img.src = "threejs_heightmap.png";
         }
         World.prototype.addToScene = function () {
@@ -87,6 +94,13 @@ define(["require", "exports", "physijs"], function (require, exports, PhysiJS) {
             this.scene.add(this.terrain[this.terrain.length - 1]);
             for (var i in this.lighting) {
                 this.scene.add(this.lighting[i]);
+            }
+        };
+        World.prototype.intersects = function (ray) {
+            var obj = ray.intersectObjects(this.terrain);
+            if (obj.length > 0) {
+                console.log(obj);
+                return true;
             }
         };
         World.prototype.getHeightData = function (img, scale) {

@@ -8,16 +8,15 @@ requirejs.config({
 		"player": "../player",
 		"world": "../world",
 		"network": "../network",
+		"player-list": "../player-list",
 		"chat": "../chat",
 		"socket.io": "../socket.io/socket.io",
-		"sizzle": "/src/sizzle/dist/sizzle"
+		"sizzle": "/src/sizzle/dist/sizzle",
+		"three-orbitcontrols": "three.orbitcontrols"
     },
 	shim: {
 		three: {
 			exports: 'THREE'
-		},
-		'three-orbitcontrols': {
-			exports: 'THREE.OrbitControls'
 		},
 		stats: {
 			exports: 'Stats'
@@ -34,5 +33,6 @@ requirejs.config({
 
 //Include three from the start
 require(["three"], function(THREE) {
+	require(["three-orbitcontrols"]);
 	require(["game"]);
 });

@@ -73,8 +73,8 @@ define(["require", "exports", "socket.io", "jquery"], function (require, exports
                 }
             });
             this.chatJazz = new Audio('StandardJazzBars.mp3');
-            this.chatJazz.play();
-            this.appendInfo("Some soothing smooth jazz for your soul (stop music with /ihatejazz)");
+            //this.chatJazz.play();
+            this.appendInfo("Hit up some jazz with /jazzmeup");
         }
         Chat.prototype.handleChatCommand = function (command) {
             var tokens = command.split(" ");
@@ -94,7 +94,7 @@ define(["require", "exports", "socket.io", "jquery"], function (require, exports
                 case "ihatejazz":
                     this.chatJazz.pause();
                     this.chatJazz.currentTime = 0;
-                    this.appendInfo("That's not cool, but suit yourself (start music with jazzmeup)");
+                    this.appendInfo("That's not cool, but suit yourself (start music with /jazzmeup)");
                     break;
                 case "jazzmeup":
                     this.chatJazz.play();

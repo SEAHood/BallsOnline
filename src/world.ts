@@ -89,6 +89,7 @@ class World {
 			
 			var ground_material: any;
 			ground_material = Physijs.createMaterial(
+				//new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture( 'maze_texture.bmp' ), wireframe: false} ),
 				new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture( 'threejs_heightmap_texture_desert_secrets.jpg' ), wireframe: false} ),
 				.8, // high friction
 				.4 // low restitution
@@ -96,23 +97,28 @@ class World {
 			ground_material.map.wrapS = ground_material.map.wrapT = THREE.RepeatWrapping;
 			ground_material.map.repeat.set( 1, 1 );
 			
-			var ground_geometry = new THREE.PlaneGeometry( 10000, 10000, 249, 249 );
+			
+			
+			//var ground_geometry = new THREE.PlaneGeometry( 10000, 10000, 255, 255 );
+			var ground_geometry = new THREE.PlaneGeometry( 25000, 25000, 249, 249 );
 			console.log(ground_geometry.vertices.length);
 			console.log(data.length);
 			
 			for (var i = 0, l = ground_geometry.vertices.length; i < l; i++)
 			{
 				var terrainValue = data[i] / 255;
-				ground_geometry.vertices[i].z = ground_geometry.vertices[i].z + terrainValue * 1000 ;
+				ground_geometry.vertices[i].z = ground_geometry.vertices[i].z + terrainValue * 17500 ;
 			}
 			
-			//ground_geometry.computeFaceNormals();
-			//ground_geometry.computeVertexNormals();
+			ground_geometry.computeFaceNormals();
+			ground_geometry.computeVertexNormals();
 			
 			var ground = new PhysiJS.HeightfieldMesh(
 				ground_geometry,
 				ground_material,
 				0, // mass
+				//255,
+				//255
 				249,
 				249
 			);
@@ -127,8 +133,8 @@ class World {
 			world.addToScene();
 			world.scene.add(player);
 		}
+		//img.src = "maze.bmp";
 		img.src = "threejs_heightmap.png";
-		
 	
 	}
 	
@@ -141,6 +147,14 @@ class World {
 		
 		for (var i in this.lighting) {			
 			this.scene.add(this.lighting[i]);
+		}
+	}
+	
+	intersects(ray: THREE.Raycaster) {
+		var obj = ray.intersectObjects(this.terrain);
+		if (obj.length > 0) {
+		console.log(obj);
+			return true;
 		}
 	}
 	

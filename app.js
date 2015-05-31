@@ -11,6 +11,11 @@ app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/disconnect', function(req, res){
+	res.sendFile(__dirname + '/dc.html');
+});
+
+
 var allPlayers = [];
 var playerNicknames = [];
 
@@ -68,6 +73,7 @@ io.on('connection', function(socket){
 		
 		nick = nick.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 		playerNicknames[guid] = nick;
+		io.emit('nick change', guid, nick);
 		io.emit('info', previousName + " has changed their name to " + nick);
 	});
 		
@@ -108,7 +114,10 @@ io.on('connection', function(socket){
 				size++;
 			}		
 			logMessage('CHECKING SOCKETS', size + " sockets registered");
-		}		
+		}
+
+		player.nick = playerNicknames[player.guid];
+		io.emit('player alive', player);
 		
 		timeout = setTimeout(function() { 
 			for (guid in allPlayers) {
