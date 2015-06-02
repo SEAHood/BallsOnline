@@ -5,6 +5,7 @@
   "dependencies": {
     "express": "^4.12.4",
     "jquery": "^2.1.4",
+    "mongodb": "^2.0.33",
     "node": "0.0.0",
     "require": "^2.4.18",
     "requirejs": "^2.1.17",

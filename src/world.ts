@@ -107,7 +107,7 @@ class World {
 			for (var i = 0, l = ground_geometry.vertices.length; i < l; i++)
 			{
 				var terrainValue = data[i] / 255;
-				ground_geometry.vertices[i].z = ground_geometry.vertices[i].z + terrainValue * 17500 ;
+				ground_geometry.vertices[i].z = ground_geometry.vertices[i].z + terrainValue * 13000 ;
 			}
 			
 			ground_geometry.computeFaceNormals();

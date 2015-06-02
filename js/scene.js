@@ -356,6 +356,23 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
                 //player.mesh.setLinearVelocity(velocity);
                 player.mesh.applyCentralImpulse(velocity);
             }
+            else {
+                var drag = 0.5;
+                pVelocity = player.mesh.getLinearVelocity();
+                if (pVelocity.x > 0) {
+                    pVelocity.setX(pVelocity.x - drag);
+                }
+                else if (pVelocity.x < 0) {
+                    pVelocity.setX(pVelocity.x + drag);
+                }
+                if (pVelocity.z > 0) {
+                    pVelocity.setZ(pVelocity.z - drag);
+                }
+                else if (pVelocity.z < 0) {
+                    pVelocity.setZ(pVelocity.z + drag);
+                }
+                player.mesh.setLinearVelocity(pVelocity);
+            }
             var speedLimit = 300;
             var pVelocity = player.mesh.getLinearVelocity();
             if (pVelocity.x > speedLimit) {

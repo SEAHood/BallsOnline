@@ -3,6 +3,7 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+
 app.use(express.static(__dirname + '/js'));
 app.use(express.static(__dirname + '/img'));
 app.use(express.static(__dirname + '/audio'));
@@ -14,6 +15,50 @@ app.get('/', function(req, res){
 app.get('/disconnect', function(req, res){
 	res.sendFile(__dirname + '/dc.html');
 });
+
+
+
+
+
+// var MongoClient = require('mongodb').MongoClient;
+// var assert = require('assert');
+// var ObjectId = require('mongodb').ObjectID;
+// var url = 'mongodb://localhost:27017/dbdata';
+// MongoClient.connect(url, function(err, db) {
+	// assert.equal(null, err);
+	// console.log("Connected correctly to server.");
+	// insertAccount(db, function(result) {
+	// });
+	// findAccounts(db, function(result) {
+		// db.close();
+	// });
+// });
+// var insertAccount = function(db, callback) {
+	// db.collection('accounts').insertOne(
+		// {
+			// "username": "test",
+			// "email": "test@example.com",
+			// "password": "whyisthisplaintext"
+		// }, 
+		// function(err, result) {
+			// assert.equal(err, null);
+			// console.log("Inserted a document into the accounts collection.");
+			// callback(result);
+		// }
+	// );
+// };
+// var findAccounts = function(db, callback) {
+	// var cursor = db.collection('accounts').find();
+	// cursor.each(function(err, doc) {
+		// assert.equal(err, null);
+		// if (doc != null) {
+			// console.log(doc);
+		// } else {
+			// callback();
+		// }
+	// });
+// };
+
 
 
 var allPlayers = [];
