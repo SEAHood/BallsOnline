@@ -81,10 +81,38 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
             this.cameraControls.addEventListener('change', function () {
                 this.frame();
             }.bind(this));
+            this.initPlayerText(this.player.guid.substring(0, 5));
+            this.scene.add(this.playerText);
             console.log("ending scene init");
             //console.log("EMITTING: " + this.player.guid);
         }
+        Scene.prototype.hexToR = function (h) { return parseInt((this.cutHex(h)).substring(0, 2), 16); };
+        Scene.prototype.hexToG = function (h) { return parseInt((this.cutHex(h)).substring(2, 4), 16); };
+        Scene.prototype.hexToB = function (h) { return parseInt((this.cutHex(h)).substring(4, 6), 16); };
+        Scene.prototype.cutHex = function (h) { return (h.charAt(0) == "#") ? h.substring(1, 7) : h; };
         Scene.prototype.addPlayer = function () {
+        };
+        Scene.prototype.initPlayerText = function (text) {
+            var playerR = this.hexToR(this.player.color);
+            var playerG = this.hexToG(this.player.color);
+            var playerB = this.hexToB(this.player.color);
+            // create a canvas element
+            var playerTextCanvas = document.createElement('canvas');
+            playerTextCanvas.width = 200;
+            playerTextCanvas.height = 30;
+            var playerTextCanvasContext = playerTextCanvas.getContext('2d');
+            playerTextCanvasContext.font = "Normal 16px Arial";
+            playerTextCanvasContext.fillStyle = "rgba(" + playerR + "," + playerG + "," + playerB + ",0.7)";
+            playerTextCanvasContext.textAlign = 'center';
+            playerTextCanvasContext.fillText(text, playerTextCanvas.width / 2, playerTextCanvas.height / 1.5);
+            // canvas contents will be used for a texture
+            var playerTextTexture = new THREE.Texture(playerTextCanvas);
+            playerTextTexture.needsUpdate = true;
+            var playerTextMaterial = new THREE.MeshBasicMaterial({ map: playerTextTexture, side: THREE.DoubleSide });
+            playerTextMaterial.transparent = true;
+            this.playerText = new THREE.Mesh(new THREE.PlaneGeometry(playerTextCanvas.width, playerTextCanvas.height), playerTextMaterial);
+            this.playerText.position.set(this.player.mesh.position.x, this.player.mesh.position.y + 20, this.player.mesh.position.z);
+            this.playerText.rotation.y = Math.PI / -1;
         };
         Scene.prototype.createSkybox = function () {
             var urlPrefix = "skybox/stormydays_";
@@ -415,6 +443,7 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
             // console.log("YES");
             // camera.position.setY(camera.position.y + 1);
             // }
+            this.playerText.position.set(player.mesh.position.x, player.mesh.position.y + 20, player.mesh.position.z);
             // Set the camera to look at our user's character
             //this.setFocus(this.world.terrain);
             // this.cameraControls.update();

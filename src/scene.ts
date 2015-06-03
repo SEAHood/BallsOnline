@@ -35,6 +35,7 @@ class Scene {
 	socket: any;
 	chat: Chat;
 	ballsDropped: number;
+	playerText: THREE.Mesh;
 	
 	controls = {
 		jumping: false,
@@ -144,14 +145,64 @@ class Scene {
 		}.bind(this));
 		
 		
+		
+		
+		
+		
+		this.initPlayerText(this.player.guid.substring(0, 5));
+		this.scene.add(this.playerText);
+		
+		
+		
+		
+		
+		
+		
 		console.log("ending scene init");
 		
 		//console.log("EMITTING: " + this.player.guid);
 		
 	}
 	
+	hexToR(h: string) {return parseInt((this.cutHex(h)).substring(0,2),16);}
+	hexToG(h: string) {return parseInt((this.cutHex(h)).substring(2,4),16);}
+	hexToB(h: string) {return parseInt((this.cutHex(h)).substring(4,6),16);}
+	cutHex(h: string) {return (h.charAt(0)=="#") ? h.substring(1,7):h;}
+	
 	addPlayer() {
 	}	
+	
+	
+	initPlayerText(text: string) {
+		var playerR = this.hexToR(this.player.color);
+		var playerG = this.hexToG(this.player.color);
+		var playerB = this.hexToB(this.player.color);
+		
+		// create a canvas element
+		var playerTextCanvas = document.createElement('canvas');
+		playerTextCanvas.width = 200;
+		playerTextCanvas.height = 30;
+		var playerTextCanvasContext: any = playerTextCanvas.getContext('2d');
+		playerTextCanvasContext.font = "Normal 16px Arial";
+		playerTextCanvasContext.fillStyle = "rgba(" + playerR + "," + playerG + "," + playerB + ",0.7)";
+		playerTextCanvasContext.textAlign = 'center';
+		playerTextCanvasContext.fillText(text, playerTextCanvas.width / 2, playerTextCanvas.height / 1.5);
+		
+		
+		// canvas contents will be used for a texture
+		var playerTextTexture = new THREE.Texture(playerTextCanvas) 
+		playerTextTexture.needsUpdate = true;
+		  
+		var playerTextMaterial = new THREE.MeshBasicMaterial( { map: playerTextTexture, side:THREE.DoubleSide } );
+		playerTextMaterial.transparent = true;
+
+		this.playerText = new THREE.Mesh(
+			new THREE.PlaneGeometry(playerTextCanvas.width, playerTextCanvas.height),
+			playerTextMaterial
+		);
+		this.playerText.position.set(this.player.mesh.position.x, this.player.mesh.position.y + 20, this.player.mesh.position.z);		
+		this.playerText.rotation.y = Math.PI / -1;
+	}
 	
 	createSkybox() {		
 		var urlPrefix = "skybox/stormydays_";
@@ -550,6 +601,8 @@ class Scene {
 		// console.log("YES");
 			// camera.position.setY(camera.position.y + 1);
 		// }
+		
+		this.playerText.position.set(player.mesh.position.x, player.mesh.position.y + 20, player.mesh.position.z);
 		
 		
 		// Set the camera to look at our user's character
