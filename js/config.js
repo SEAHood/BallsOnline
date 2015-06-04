@@ -9,6 +9,7 @@ requirejs.config({
         "network": "../network",
         "player-list": "../player-list",
         "chat": "../chat",
+        "controls": "../controls",
         "socket.io": "../socket.io/socket.io",
         "sizzle": "/src/sizzle/dist/sizzle",
         "three-orbitcontrols": "three.orbitcontrols"

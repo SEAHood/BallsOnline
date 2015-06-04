@@ -1,21 +1,23 @@
-///<reference path="../typings/threejs/three.d.ts"/>
 ///<reference path="../typings/physijs/physijs.d.ts"/>
-//import three = require("three");
 import PhysiJS = require("physijs");
+import Controls = require("./controls");
 
 class Player {
 	guid: String;
 	color: any; //This should be a number 
 	username: String;
 	mesh: PhysiJS.Mesh;
-	controls: any;
+	controls: Controls;
+	isAlive: boolean;
 	
-	constructor(color: Object) { //find out what colour is	
-	
+	constructor(color: any) { //find out what colour is	
 		console.log("creating player");
+		this.controls = new Controls();
+		this.isAlive = true;
 		this.guid = this.generateGuid();
 		this.color = this.generateColor();
 		this.username = '1234';
+		
 		var friction = 1; // high friction
 		var restitution = 1; // low restitution
 		var material = PhysiJS.createMaterial(
@@ -35,7 +37,6 @@ class Player {
 		this.mesh.position.z = 0;
 		// Enable CCD if the object moves more than 1 meter in one simulation frame
 		this.mesh.setCcdMotionThreshold(1);
-
 		// Set the radius of the embedded sphere such that it is smaller than the object
 		this.mesh.setCcdSweptSphereRadius(4.5);
 	}
@@ -64,6 +65,108 @@ class Player {
 		//this.mesh.set
 		this.mesh.position.set(500, 1250, 0);
 		this.mesh.__dirtyPosition = true;	
+	}
+	
+	update() {
+	
+		
+		var currentControls = this.controls.controlState;
+		
+	console.log(this.controls.isActive);
+			
+	
+		if (this.mesh.position.y < -100) {
+			this.reset();
+			this.isAlive = false;
+		}
+		
+		if (this.mesh.position.y <= 0) {
+			currentControls.jumping = false;
+		}
+		
+		
+			
+			//var velocity = player.mesh.getLinearVelocity();
+		if (this.controls.isActive) {	
+			var velocity = new THREE.Vector3(0, 0, 0);
+			//velocity = player.mesh.getLinearVelocity();
+			if (currentControls.space && !currentControls.jumping) {
+				var pVelocity = this.mesh.getLinearVelocity();
+				if (typeof pVelocity === 'undefined') {
+					pVelocity = new THREE.Vector3(0, 0, 0);
+				}
+				pVelocity.setY(100);
+				
+				this.mesh.setLinearVelocity(pVelocity);
+				currentControls.jumping = true;
+				this.mesh.addEventListener('collision', function() {
+					currentControls.jumping = false;
+					// `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
+				});
+			}
+			
+			if (currentControls.up)
+				velocity.setZ(5000);
+				
+			if (currentControls.down)
+				velocity.setZ(-5000);
+				
+			if (currentControls.left)
+				velocity.setX(5000);
+				
+			if (currentControls.right)
+				velocity.setX(-5000);
+				
+			this.mesh.applyCentralImpulse(velocity);
+		} else {
+
+			var drag = 0.5;
+			pVelocity = this.mesh.getLinearVelocity();
+			if (pVelocity.x > 0) {
+				pVelocity.setX(pVelocity.x - drag);
+			} else if (pVelocity.x < 0) { 
+				pVelocity.setX(pVelocity.x + drag);
+			} 
+			
+			if (pVelocity.z > 0) {
+				pVelocity.setZ(pVelocity.z - drag);
+			} else if (pVelocity.z < 0) { 
+				pVelocity.setZ(pVelocity.z + drag);
+			}
+			this.mesh.setLinearVelocity(pVelocity);
+		}
+
+		
+		//TODO: REFACTOR EVERYTHING OMG
+		var speedLimit = 300;
+		var pVelocity = this.mesh.getLinearVelocity();
+		if (pVelocity.x > speedLimit) {
+			this.mesh.setLinearVelocity(new THREE.Vector3(speedLimit, pVelocity.y, pVelocity.z));
+		}
+		pVelocity = this.mesh.getLinearVelocity();
+		if (pVelocity.y > speedLimit) {
+			this.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, speedLimit, pVelocity.z));
+		}		
+		pVelocity = this.mesh.getLinearVelocity();		
+		if (pVelocity.z > speedLimit) {
+			this.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, pVelocity.y, speedLimit));
+		}
+
+		pVelocity = this.mesh.getLinearVelocity();
+		if (pVelocity.x < -speedLimit) {
+			this.mesh.setLinearVelocity(new THREE.Vector3(-speedLimit, pVelocity.y, pVelocity.z));
+		}
+		pVelocity = this.mesh.getLinearVelocity();
+		if (pVelocity.y < -speedLimit) {
+			this.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, -speedLimit, pVelocity.z));
+		}		
+		pVelocity = this.mesh.getLinearVelocity();		
+		if (pVelocity.z < -speedLimit) {
+			this.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, pVelocity.y, -speedLimit));
+		}
+			
+			
+		
 	}
 }
 

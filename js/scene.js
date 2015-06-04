@@ -6,16 +6,16 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
     //import OrbitControls = require("orbitcontrols");
     // import Test = BallsOnline.Test;
     var Scene = (function () {
+        // controls = {
+        // jumping: false,
+        // space: false,
+        // left: false,
+        // up: false,
+        // right: false,
+        // down: false
+        // };
         //controls: any;
         function Scene() {
-            this.controls = {
-                jumping: false,
-                space: false,
-                left: false,
-                up: false,
-                right: false,
-                down: false
-            };
             this.rPlayers = [];
             this.socket = io.connect("82.36.121.144:3000"); //How can this be.. better?
             console.log("starting scene init");
@@ -226,84 +226,8 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
             //user 3w= this.user,
             // State of the different controls
             var player = this.player;
-            var controls = this.controls;
+            //var controls = this.controls;
             var basicScene = this;
-            // When the user presses a key 
-            $(document).keydown(function (e) {
-                if (!$(e.target).is('input')) {
-                    var prevent = true;
-                    // Update the state of the attached control to "true"
-                    switch (e.keyCode) {
-                        case 32:
-                            controls.space = true;
-                            break;
-                        case 37:
-                        case 65:
-                            controls.left = true;
-                            break;
-                        case 38:
-                        case 87:
-                            controls.up = true;
-                            break;
-                        case 39:
-                        case 68:
-                            controls.right = true;
-                            break;
-                        case 40:
-                        case 83:
-                            controls.down = true;
-                            break;
-                        default:
-                            prevent = false;
-                    }
-                    // Avoid the browser to react unexpectedly
-                    if (prevent) {
-                        e.preventDefault();
-                    }
-                    else {
-                        return;
-                    }
-                }
-                // Update the character's direction
-                //user.setDirection(controls);
-            });
-            // When the user releases a key
-            $(document).keyup(function (e) {
-                var prevent = true;
-                // Update the state of the attached control to "false"
-                switch (e.keyCode) {
-                    case 32:
-                        controls.space = false;
-                        break;
-                    case 37:
-                    case 65:
-                        controls.left = false;
-                        break;
-                    case 38:
-                    case 87:
-                        controls.up = false;
-                        break;
-                    case 39:
-                    case 68:
-                        controls.right = false;
-                        break;
-                    case 40:
-                    case 83:
-                        controls.down = false;
-                        break;
-                    default:
-                        prevent = false;
-                }
-                // Avoid the browser to react unexpectedly
-                if (prevent) {
-                    e.preventDefault();
-                }
-                else {
-                    return;
-                }
-                // Update the character's direction
-                //user.setDirection(controls);
-            });
             // On resize
             jQuery(window).resize(function () {
                 // Redefine the size of the renderer
@@ -337,94 +261,13 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
             //console.log(this);
             this.stats.update();
             //console.log(this);
-            var controls = this.controls;
+            //var controls = this.controls;
             var player = this.player;
             var camera = this.camera;
-            if (player.mesh.position.y < -100) {
-                player.reset();
+            this.player.update();
+            if (!player.isAlive) {
                 this.ballsDropped++;
                 this.socket.emit('death', { 'guid': player.guid, 'color': player.color, 'ballsDropped': this.ballsDropped });
-            }
-            if (player.mesh.position.y <= 0) {
-            }
-            //var velocity = player.mesh.getLinearVelocity();
-            if (controls.space || controls.left || controls.up || controls.right || controls.down) {
-                var velocity = new THREE.Vector3(0, 0, 0);
-                //velocity = player.mesh.getLinearVelocity();
-                if (controls.space && !controls.jumping) {
-                    var pVelocity = player.mesh.getLinearVelocity();
-                    if (typeof pVelocity === 'undefined') {
-                        pVelocity = new THREE.Vector3(0, 0, 0);
-                    }
-                    pVelocity.setY(100);
-                    player.mesh.setLinearVelocity(pVelocity);
-                    controls.jumping = true;
-                    player.mesh.addEventListener('collision', function () {
-                        controls.jumping = false;
-                        // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
-                    });
-                }
-                if (controls.up)
-                    velocity.setZ(5000);
-                //player.mesh.setLinearVelocity(new THREE.Vector3(0, 0, 100));
-                //player.mesh.position.setZ(player.mesh.position.z + 2);
-                if (controls.down)
-                    velocity.setZ(-5000);
-                //player.mesh.setLinearVelocity(new THREE.Vector3(0, 0, -100));
-                //player.mesh.position.setZ(player.mesh.position.z - 2);
-                if (controls.left)
-                    velocity.setX(5000);
-                //player.mesh.setLinearVelocity(new THREE.Vector3(100, 0, 0));
-                //player.mesh.position.setX(player.mesh.position.x + 2);
-                if (controls.right)
-                    velocity.setX(-5000);
-                //player.mesh.setLinearVelocity(new THREE.Vector3(-100, 0, 0));
-                //player.mesh.position.setX(player.mesh.position.x - 2);
-                //console.log(velocity);
-                //player.mesh.setLinearVelocity(velocity);
-                player.mesh.applyCentralImpulse(velocity);
-            }
-            else {
-                var drag = 0.5;
-                pVelocity = player.mesh.getLinearVelocity();
-                if (pVelocity.x > 0) {
-                    pVelocity.setX(pVelocity.x - drag);
-                }
-                else if (pVelocity.x < 0) {
-                    pVelocity.setX(pVelocity.x + drag);
-                }
-                if (pVelocity.z > 0) {
-                    pVelocity.setZ(pVelocity.z - drag);
-                }
-                else if (pVelocity.z < 0) {
-                    pVelocity.setZ(pVelocity.z + drag);
-                }
-                player.mesh.setLinearVelocity(pVelocity);
-            }
-            var speedLimit = 300;
-            var pVelocity = player.mesh.getLinearVelocity();
-            if (pVelocity.x > speedLimit) {
-                player.mesh.setLinearVelocity(new THREE.Vector3(speedLimit, pVelocity.y, pVelocity.z));
-            }
-            pVelocity = player.mesh.getLinearVelocity();
-            if (pVelocity.y > speedLimit) {
-                player.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, speedLimit, pVelocity.z));
-            }
-            pVelocity = player.mesh.getLinearVelocity();
-            if (pVelocity.z > speedLimit) {
-                player.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, pVelocity.y, speedLimit));
-            }
-            pVelocity = player.mesh.getLinearVelocity();
-            if (pVelocity.x < -speedLimit) {
-                player.mesh.setLinearVelocity(new THREE.Vector3(-speedLimit, pVelocity.y, pVelocity.z));
-            }
-            pVelocity = player.mesh.getLinearVelocity();
-            if (pVelocity.y < -speedLimit) {
-                player.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, -speedLimit, pVelocity.z));
-            }
-            pVelocity = player.mesh.getLinearVelocity();
-            if (pVelocity.z < -speedLimit) {
-                player.mesh.setLinearVelocity(new THREE.Vector3(pVelocity.x, pVelocity.y, -speedLimit));
             }
             this.socket.emit('movement', { 'guid': player.guid, 'color': player.color, 'position': player.mesh.position, 'velocity': player.mesh.getLinearVelocity() });
             var playerVelocity = player.mesh.getLinearVelocity();
