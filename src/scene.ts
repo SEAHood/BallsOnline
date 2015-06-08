@@ -89,7 +89,7 @@ class Scene {
 		
 		// Create the user's character
 		this.player = new Player({
-			color: 0x7A43B6
+			username: 'placeholder'
 		});
 		
 		//this.scene.add(this.player.mesh);
