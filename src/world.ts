@@ -99,8 +99,8 @@ class World {
 			
 			
 			
-			//var ground_geometry = new THREE.PlaneGeometry( 10000, 10000, 255, 255 );
-			var ground_geometry = new THREE.PlaneGeometry( 25000, 25000, 249, 249 );
+			var ground_geometry = new THREE.PlaneGeometry( 10000, 10000, 255, 255 );
+			//var ground_geometry = new THREE.PlaneGeometry( 25000, 25000, 249, 249 );
 			console.log(ground_geometry.vertices.length);
 			console.log(data.length);
 			
