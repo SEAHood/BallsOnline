@@ -1,7 +1,7 @@
 define(["require", "exports", "socket.io", "jquery"], function (require, exports, io, $) {
     var PlayerList = (function () {
         function PlayerList() {
-            this.socket = io.connect("82.36.121.144:3000"); //How can this be.. better?
+            this.socket = io.connect(); //How can this be.. better?
             var PlayerList = this;
             PlayerList.allPlayers = [];
             this.socket.on('player joined', function (player) {

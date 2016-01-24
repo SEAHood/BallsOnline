@@ -1,27 +1,23 @@
 define(["require", "exports", "physijs", "./controls"], function (require, exports, PhysiJS, Controls) {
     var Player = (function () {
-        function Player(color) {
+        function Player(username) {
             console.log("creating player");
             this.controls = new Controls();
             this.isAlive = true;
             this.guid = this.generateGuid();
             this.color = this.generateColor();
-            this.username = '1234';
+            this.username = username;
             var friction = 1; // high friction
             var restitution = 1; // low restitution
             var material = PhysiJS.createMaterial(new THREE.MeshLambertMaterial({ color: this.color }), friction, restitution);
-            //var mat = new THREE.MeshLambertMaterial({ color: this.color });
-            //this.mesh = new THREE.Mesh(new THREE.SphereGeometry(5,32,32), new THREE.MeshLambertMaterial({ color: this.color }));
             this.mesh = new PhysiJS.SphereMesh(new THREE.SphereGeometry(5, 32, 32), material);
             this.mesh.castShadow = true;
             this.mesh.receiveShadow = true;
-            this.mesh.position.x = 500;
-            this.mesh.position.y = 1250;
-            this.mesh.position.z = 0;
             // Enable CCD if the object moves more than 1 meter in one simulation frame
             this.mesh.setCcdMotionThreshold(1);
             // Set the radius of the embedded sphere such that it is smaller than the object
             this.mesh.setCcdSweptSphereRadius(4.5);
+            this.reset();
         }
         Player.prototype.generateGuid = function () {
             function s4() {
@@ -48,7 +44,6 @@ define(["require", "exports", "physijs", "./controls"], function (require, expor
         };
         Player.prototype.update = function () {
             var currentControls = this.controls.controlState;
-            console.log(this.controls.isActive);
             if (this.mesh.position.y < -100) {
                 this.reset();
                 this.isAlive = false;
@@ -56,10 +51,8 @@ define(["require", "exports", "physijs", "./controls"], function (require, expor
             if (this.mesh.position.y <= 0) {
                 currentControls.jumping = false;
             }
-            //var velocity = player.mesh.getLinearVelocity();
             if (this.controls.isActive) {
                 var velocity = new THREE.Vector3(0, 0, 0);
-                //velocity = player.mesh.getLinearVelocity();
                 if (currentControls.space && !currentControls.jumping) {
                     var pVelocity = this.mesh.getLinearVelocity();
                     if (typeof pVelocity === 'undefined') {

@@ -46,8 +46,6 @@ define(["require", "exports"], function (require, exports) {
                         return;
                     }
                 }
-                // Update the character's direction
-                //user.setDirection(controls);
             });
             // When the user releases a key
             $(document).keyup(function (e) {
@@ -83,10 +81,9 @@ define(["require", "exports"], function (require, exports) {
                 else {
                     return;
                 }
-                // Update the character's direction
-                //user.setDirection(controls);
             });
         }
+        //TODO: Ideally this should be a variable
         Controls.prototype.isActive = function () {
             for (var i in this.controlState) {
                 var isActive = this.controlState[i];
@@ -95,8 +92,6 @@ define(["require", "exports"], function (require, exports) {
                 }
             }
             return false;
-        };
-        Controls.prototype.getControlState = function () {
         };
         return Controls;
     })();

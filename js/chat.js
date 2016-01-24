@@ -3,7 +3,7 @@ define(["require", "exports", "socket.io", "jquery"], function (require, exports
         function Chat(guid, color) {
             this.guid = guid;
             this.color = color;
-            this.socket = io.connect("82.36.121.144:3000"); //How can this be.. better?
+            this.socket = io.connect(); //How can this be.. better?
             var chat = this;
             this.socket.on('chat message', function (data) {
                 var sender;

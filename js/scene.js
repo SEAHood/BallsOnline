@@ -17,7 +17,7 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
         //controls: any;
         function Scene() {
             this.rPlayers = [];
-            this.socket = io.connect("82.36.121.144:3000"); //How can this be.. better?
+            this.socket = io.connect(); //How can this be.. better?
             console.log("starting scene init");
             this.container = jQuery('#test');
             // Create a scene, a camera, a light and a WebGL renderer with Three.JS
@@ -44,9 +44,7 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
             this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
             document.body.appendChild(this.renderer.domElement);
             // Create the user's character
-            this.player = new Player({
-                color: 0x7A43B6
-            });
+            this.player = new Player('placeholder');
             //this.scene.add(this.player.mesh);
             // Define the container for the renderer
             //this.container = $('body');
