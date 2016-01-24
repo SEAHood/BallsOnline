@@ -181,5 +181,6 @@ io.on('connection', function(socket){
 
 
 http.listen(3000, function(){
+	console.log('BallsOnline is online');
 	console.log('listening on *:3000');
 });
