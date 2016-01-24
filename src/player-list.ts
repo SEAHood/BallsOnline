@@ -8,7 +8,7 @@ class PlayerList {
 	socket: any;		
 
 	constructor() { 	
-		this.socket = io.connect("82.36.121.144:3000"); //How can this be.. better?
+		this.socket = io.connect(); //How can this be.. better?
 		var PlayerList = this;
 		PlayerList.allPlayers = [];
 		

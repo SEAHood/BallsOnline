@@ -51,7 +51,7 @@ class Scene {
 	constructor() {
 		this.rPlayers = [];
 		
-		this.socket = io.connect("82.36.121.144:3000"); //How can this be.. better?
+		this.socket = io.connect(); //How can this be.. better?
 		
 		console.log("starting scene init");
 		
@@ -88,9 +88,9 @@ class Scene {
 		document.body.appendChild(this.renderer.domElement);
 		
 		// Create the user's character
-		this.player = new Player({
-			username: 'placeholder'
-		});
+		this.player = new Player(
+			'placeholder'
+		);
 		
 		//this.scene.add(this.player.mesh);
 		

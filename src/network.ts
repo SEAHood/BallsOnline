@@ -6,7 +6,7 @@ class Network {
 	socket: any;
 	
 	constructor() { 		
-		this.socket = io.connect("82.36.121.144:3000"); //How can this be.. better?
+		this.socket = io.connect(); //How can this be.. better?
 	}
 	
 	on(event: string, callback: (data: any) => void) {

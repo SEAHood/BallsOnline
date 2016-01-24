@@ -82,9 +82,17 @@ function logMessage(type, content) {
 	console.log("[" + dFormatted + "][" + type + "]: " + content);
 }
 
+io.sockets.on('connection', function(socket) {
+	console.log("AWJNDKAJWNDFIOSEIJFOSIEMFLKJSMEF");
+});
+
+io.on('load', function() {
+	console.log("AWJDNKAJWDN");
+});
+
 io.on('connection', function(socket){
     var address = socket.request.connection.remoteAddress;
-	//console.log("[CONNECTION]: " + address);	
+	console.log("[CONNECTION]: " + address);
 	
 	socket.on('movement', function(player) {
 		io.emit('movement', player);

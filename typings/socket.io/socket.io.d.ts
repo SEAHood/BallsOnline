@@ -1,5 +1,6 @@
 
 declare var io : {
+	connect(): Socket;
 	connect(url: string): Socket;
 }
 interface Socket {
