@@ -16,6 +16,7 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
         // };
         //controls: any;
         function Scene() {
+            var _this = this;
             this.rPlayers = [];
             this.socket = io.connect(); //How can this be.. better?
             console.log("starting scene init");
@@ -48,7 +49,7 @@ define(["require", "exports", "jquery", "stats", "./player", "./world", "socket.
             //this.scene.add(this.player.mesh);
             // Define the container for the renderer
             //this.container = $('body');
-            this.world = new World(this.scene, this.player.mesh);
+            setTimeout(function () { return _this.world = new World(_this.scene, _this.player.mesh); }, 0);
             //this.world.addToScene(this.scene);
             //this.scene.add(this.world.terrain);
             this.stats = new Stats();

@@ -1,10 +1,11 @@
 define(["require", "exports", "socket.io", "jquery"], function (require, exports, io, $) {
     var Chat = (function () {
         function Chat(guid, color) {
+            var _this = this;
             this.guid = guid;
             this.color = color;
             this.socket = io.connect(); //How can this be.. better?
-            var chat = this;
+            //var chat = this;
             this.socket.on('chat message', function (data) {
                 var sender;
                 console.log(data);
@@ -33,21 +34,20 @@ define(["require", "exports", "socket.io", "jquery"], function (require, exports
                 $('#messages').scrollTop($('#messages')[0].scrollHeight);
             });
             this.socket.on('death', function (data) {
-                var ballsDroppedOrdinality = chat.ordinalSuffixOf(data.ballsDropped);
+                var ballsDroppedOrdinality = _this.ordinalSuffixOf(data.ballsDropped);
                 var li = "<li><span style='color:" + data.color + ";'>" + data.guid.substring(0, 5) + "</span> dropped their ball for the " + ballsDroppedOrdinality + " time!" + "</li>";
                 $('#messages').append(li);
                 $('#messages').scrollTop($('#messages')[0].scrollHeight);
             });
-            var chat = this;
             $('form').submit(function () {
                 if ($('#m').val() != "") {
                     if ($('#m').val().substring(0, 1) == "/") {
-                        chat.handleChatCommand($('#m').val());
+                        _this.handleChatCommand($('#m').val());
                         $('#m').val('');
                         $('#m').blur();
                     }
                     else {
-                        chat.socket.emit('chat message', { 'guid': guid, 'msg': $('#m').val(), 'color': color });
+                        _this.socket.emit('chat message', { 'guid': guid, 'msg': $('#m').val(), 'color': color });
                         $('#m').val('');
                         $('#m').blur();
                     }

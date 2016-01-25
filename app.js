@@ -7,6 +7,7 @@ var io = require('socket.io')(http);
 app.use(express.static(__dirname + '/js'));
 app.use(express.static(__dirname + '/img'));
 app.use(express.static(__dirname + '/audio'));
+app.use(express.static(__dirname + '/models'));
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
@@ -82,13 +83,6 @@ function logMessage(type, content) {
 	console.log("[" + dFormatted + "][" + type + "]: " + content);
 }
 
-io.sockets.on('connection', function(socket) {
-	console.log("AWJNDKAJWNDFIOSEIJFOSIEMFLKJSMEF");
-});
-
-io.on('load', function() {
-	console.log("AWJDNKAJWDN");
-});
 
 io.on('connection', function(socket){
     var address = socket.request.connection.remoteAddress;

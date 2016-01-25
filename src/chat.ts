@@ -12,9 +12,9 @@ class Chat {
 		this.guid = guid;
 		this.color = color;
 		this.socket = io.connect(); //How can this be.. better?
-		var chat = this;
+		//var chat = this;
 		
-		this.socket.on('chat message', function(data){	
+		this.socket.on('chat message', data => {
 			var sender;
 			console.log(data);
 			if (typeof data.nick != 'undefined') {
@@ -29,14 +29,14 @@ class Chat {
 			$('#messages').scrollTop($('#messages')[0].scrollHeight);
 		});
 		
-		this.socket.on('error', function(msg) {
+		this.socket.on('error', msg => {
 			var li = "<li><span style='color: #4e0f1a;'>" + msg + "</span></li>";
 			//$('#messages').append($('<li>').text("<" + data.guid.substring(0, 5) + "> " + data.msg));
 			$('#messages').append(li);
 			$('#messages').scrollTop($('#messages')[0].scrollHeight);
 		});
 		
-		this.socket.on('info', function(msg) {
+		this.socket.on('info', msg => {
 			//this.appendInfo(msg);
 			var li = "<li><span style='color: #796817;'>" + msg + "</span></li>";
 			//$('#messages').append($('<li>').text("<" + data.guid.substring(0, 5) + "> " + data.msg));
@@ -44,22 +44,21 @@ class Chat {
 			$('#messages').scrollTop($('#messages')[0].scrollHeight);
 		});
 		
-		this.socket.on('death', function(data) {	
-			var ballsDroppedOrdinality = chat.ordinalSuffixOf(data.ballsDropped);
+		this.socket.on('death', data => {
+			var ballsDroppedOrdinality = this.ordinalSuffixOf(data.ballsDropped);
 			var li = "<li><span style='color:" + data.color + ";'>" + data.guid.substring(0, 5) + "</span> dropped their ball for the " + ballsDroppedOrdinality + " time!" + "</li>";
 			$('#messages').append(li);
 			$('#messages').scrollTop($('#messages')[0].scrollHeight);
 		});
-		
-		var chat = this;
-		$('form').submit(function(){
+
+		$('form').submit(() => {
 			if ($('#m').val() != "") {
 				if ($('#m').val().substring(0, 1) == "/") {
-					chat.handleChatCommand($('#m').val());
+					this.handleChatCommand($('#m').val());
 					$('#m').val('');
 					$('#m').blur();
-				} else {				
-					chat.socket.emit('chat message', { 'guid': guid, 'msg': $('#m').val(), 'color': color });
+				} else {
+					this.socket.emit('chat message', { 'guid': guid, 'msg': $('#m').val(), 'color': color });
 					$('#m').val('');
 					$('#m').blur();
 				}
@@ -73,7 +72,7 @@ class Chat {
 		});
 		
 		
-		$(document).keydown(function (e) {
+		$(document).keydown( e => {
 			if (!$(e.target).is('input')) {
 				var prevent = true;
 				// Update the state of the attached control to "true"

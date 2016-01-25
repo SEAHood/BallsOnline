@@ -96,7 +96,7 @@ class Scene {
 		
 		// Define the container for the renderer
 		//this.container = $('body');
-		this.world = new World(this.scene, this.player.mesh);
+		setTimeout(() => this.world = new World(this.scene, this.player.mesh), 0);
 		//this.world.addToScene(this.scene);
 		//this.scene.add(this.world.terrain);
 		
