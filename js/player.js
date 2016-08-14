@@ -18,7 +18,9 @@ define(["require", "exports", "physijs", "./controls"], function (require, expor
             // Set the radius of the embedded sphere such that it is smaller than the object
             this.mesh.setCcdSweptSphereRadius(4.5);
             this.reset();
+
         }
+
         Player.prototype.generateGuid = function () {
             function s4() {
                 return Math.floor((1 + Math.random()) * 0x10000)
